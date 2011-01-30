@@ -2,7 +2,9 @@
 #define GRAMCODES_HH
 
 #include <string>
-#include "AgramtabLib/agramtab_.h"
+#include <AgramtabLib/agramtab_.h>
+
+#include "part_of_speech.ii"
 
 class gramcodes;
 
@@ -29,7 +31,7 @@ class gramcodes
 public:
   gramcodes (CAgramtab *agramtab, std::string const &gramcodes);
   ~gramcodes ();
-  int part_of_speech () const;
+  part_of_speech get_part_of_speech () const;
   std::vector<grammeme> grammemes () const;
 
   class const_iterator;

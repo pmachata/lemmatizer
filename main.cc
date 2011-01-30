@@ -3,16 +3,20 @@
 #include <cstring>
 #include <iconv.h>
 #include <iostream>
-#include <langinfo.h>
 #include <stdexcept>
 #include <sstream>
 
 #include <AgramtabLib/RusGramTab.h>
+
+#include <cs/cs.h>
+#include <util/neo_files.h>
+
 #include "lemmatize.hh"
 #include "gramcodes.hh"
 #include "forms.hh"
+#include "part_of_speech.hh"
+#include "config.hh"
 
-#include <ctemplate/template.h>
 
 void fail (std::string const &reason)
 {
@@ -73,6 +77,19 @@ std::string convert (std::string const &word, iconv_t ic_d)
   return outbuf;
 }
 
+void handle_neoerr (NEOERR *err)
+{
+  if (err != NULL)
+    {
+      STRING str;
+      string_init (&str);
+      nerr_error_string (err, &str);
+      std::string what = str.buf;
+      string_clear (&str);
+      throw std::runtime_error (what);
+    }
+}
+
 // Use this character as an accent mark.  This must be a wchar_t
 // constant.  In non-unicode environment, this should be set to L"'"
 // or some such.
@@ -120,7 +137,7 @@ public:
   }
 
   // Convert the string to on-screen representation.  If accent is
-  // passed, put accent mark where it should be. 
+  // passed, put accent mark where it should be.
   std::string show (std::string const &w, int accent = -1)
   {
     std::string mbw = convert (w, _m_iconv_from);
@@ -132,8 +149,77 @@ public:
     return mbw;
   }
 
+  class hdf
+  {
+    HDF *_m_hdf;
+
+  public:
+    hdf ()
+    {
+      handle_neoerr (hdf_init (&_m_hdf));
+    }
+
+    ~hdf ()
+    {
+      hdf_destroy (&_m_hdf);
+    }
+
+    operator HDF *()
+    {
+      return _m_hdf;
+    }
+  };
+
+  class template_cache
+    : public std::vector<CSPARSE *>
+  {
+    typedef std::vector<CSPARSE *> super_t;
+  public:
+    void push_back (HDF *hdf, std::string const &filename)
+    {
+      CSPARSE *parse;
+      handle_neoerr (cs_init (&parse, hdf));
+      handle_neoerr (cs_parse_file (parse, filename.c_str ()));
+      super_t::push_back (parse);
+    }
+
+    using super_t::push_back;
+
+    ~template_cache ()
+    {
+      for (const_iterator it = begin (); it != end (); ++it)
+	{
+	  CSPARSE *parse = *it;
+	  cs_destroy (&parse);
+	}
+    }
+  };
+
   int run ()
   {
+    std::cout << "Content-type: text/html\n\n";
+
+    hdf data;
+    handle_neoerr (hdf_set_valuef (data, "hdf.loadpaths.0=%s",
+				   config::path.c_str ()));
+
+    size_t n = _m_agramtab->GetPartOfSpeechesCount ();
+    assert (n < 100); // make sure it's sane
+    template_cache templates;
+    for (size_t i = 0; i < n; ++i)
+      try
+	{
+	  // NB this calls load_template, so absolute path isn't
+	  // necessary
+	  templates.push_back
+	    (data, show (_m_agramtab->GetPartOfSpeechStr (i)) + ".cs");
+	}
+      catch (std::runtime_error const &err)
+	{
+	  templates.push_back (NULL);
+	  std::cerr << err.what () << std::endl;
+	}
+
     while (true)
       {
 	std::string line;
@@ -154,20 +240,19 @@ public:
 	    std::cout << "found:    " << (it.found () ? "yes" : "no")
 		      << " (id " << std::hex << it->GetParadigmId () << std::dec << ")" << std::endl;
 	    std::cout << "src norm: " << show (it->GetSrcNorm ()) << std::endl;
-	    std::cout << "p.o.s.:   " << it.part_of_speech ()
-		      << " (" << show (it.part_of_speech_str ()) << ")" << std::endl;
+
+	    part_of_speech pos = it.get_part_of_speech ();
+	    std::cout << "p.o.s.:   " << pos.number ()
+		      << " (" << show (pos.name ()) << ")" << std::endl;
 
 	    lemmatize::forms forms = it.forms ();
-	    std::cout << "all forms:" << it->GetHomonymWeight () << std::endl;
-
-	    ctemplate::TemplateDictionary *
-	      dict = new ctemplate::TemplateDictionary("section example");
+	    typedef std::map<std::string, std::vector<std::string> > form_map_t;
+	    form_map_t form_map;
 
 	    for (lemmatize::forms::const_iterator ft = forms.begin ();
 		 ft != forms.end (); ++ft)
 	      {
 		std::string form = show (*ft, ft.accent ());
-		std::cout << "\t" << form;
 		gramcodes ac = ft.ancode ();
 
 		std::vector<grammeme> grammemes = ac.grammemes ();
@@ -175,20 +260,45 @@ public:
 		for (std::vector<grammeme>::const_iterator gt = grammemes.begin ();
 		     gt != grammemes.end (); ++gt)
 		  ss << (gt == grammemes.begin () ? "" : ",") << gt->c_str ();
-		std::string raw_category = ss.str ();
-		std::string category = show (raw_category);
 
-		dict->SetValue(category, form);
-		std::cout << "\t" << category << "(" << grammemes.size () << ")";
-		std::cout << std::endl;
+		// no categories?
+		if (grammemes.begin () == grammemes.end ())
+		  ss << "_";
+		std::string category = show (ss.str ());
+
+		form_map[category].push_back (form);
 	      }
 
-    	    string output;
-	    if (!ctemplate::ExpandTemplate ("/home/petr/proj/rus/template.tpl",
-					    ctemplate::DO_NOT_STRIP,
-					    dict, &output))
-	      abort ();
-	    std::cout << output << std::endl;
+	    for (form_map_t::const_iterator it = form_map.begin ();
+		 it != form_map.end (); ++it)
+	      {
+		std::string name = std::string ("Form.") + it->first;
+		HDF *node;
+		handle_neoerr (hdf_get_node (data, name.c_str (), &node));
+		for (size_t i = 0; i < it->second.size (); ++i)
+		  handle_neoerr (hdf_set_valuef (node, "%zd=%s", i,
+						 it->second[i].c_str ()));
+	      }
+
+	    handle_neoerr (hdf_dump (data, ">"));
+
+	    struct _
+	    {
+	      static NEOERR *render_cb (void *data, char *str)
+	      {
+		std::cout << str;
+		return NULL;
+	      }
+	    };
+
+	    CSPARSE *tmpl = templates.at (pos.number ());
+	    if (tmpl != NULL)
+	      handle_neoerr (cs_render (tmpl, this, &_::render_cb));
+	    else
+	      std::cout << "No template for " << show (pos.name ())
+			<< "." << std::endl;
+	    handle_neoerr (hdf_remove_tree (data, "Form"));
+
 	  }
       }
     return 0;

@@ -7,6 +7,7 @@
 #include <LemmatizerLib/Lemmatizers.h>
 
 #include "gramcodes.ii"
+#include "part_of_speech.ii"
 
 class lemmatize
 {
@@ -61,8 +62,7 @@ public:
   gramcodes ancode () const;
   gramcodes common_ancode ();
 
-  int part_of_speech () const;
-  std::string part_of_speech_str () const;
+  part_of_speech get_part_of_speech () const;
 
   int accent () const;
 

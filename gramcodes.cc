@@ -1,7 +1,9 @@
-#include "gramcodes.hh"
 #include <iostream>
 #include <iterator>
 #include <AgramtabLib/RusGramTab.h>
+
+#include "gramcodes.hh"
+#include "part_of_speech.hh"
 
 gramcodes::gramcodes (CAgramtab *agramtab, std::string const &gramcodes)
   : _m_agramtab (agramtab)
@@ -12,10 +14,11 @@ gramcodes::~gramcodes ()
 {
 }
 
-int
-gramcodes::part_of_speech () const
+part_of_speech
+gramcodes::get_part_of_speech () const
 {
-  return _m_agramtab->GetPartOfSpeech (_m_gramcodes.c_str ());
+  return part_of_speech (_m_agramtab,
+			 _m_agramtab->GetPartOfSpeech (_m_gramcodes.c_str ()));
 }
 
 gramcodes::const_iterator

@@ -1,5 +1,6 @@
 #include "lemmatize.hh"
 #include "forms.hh"
+#include "part_of_speech.hh"
 
 lemmatize::lemmatize (std::string word,
 		      CLemmatizer *lemmatizer, CAgramtab *agramtab)
@@ -9,7 +10,7 @@ lemmatize::lemmatize (std::string word,
 					true, _m_paradigms);
 }
 
-lemmatize::const_iterator::const_iterator \
+lemmatize::const_iterator::const_iterator
 (std::vector<CFormInfo>::const_iterator it, CAgramtab *agramtab)
   : _m_it (it)
   , _m_agramtab (agramtab)
@@ -153,16 +154,10 @@ lemmatize::const_iterator::common_ancode ()
 		    paradigm ().GetCommonAncode ());
 }
 
-int
-lemmatize::const_iterator::part_of_speech () const
+part_of_speech
+lemmatize::const_iterator::get_part_of_speech () const
 {
-  return ancode ().part_of_speech ();
-}
-
-std::string
-lemmatize::const_iterator::part_of_speech_str () const
-{
-  return _m_agramtab->GetPartOfSpeechStr(part_of_speech ());
+  return ancode ().get_part_of_speech ();
 }
 
 int
