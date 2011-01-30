@@ -1,0 +1,80 @@
+enum
+  {
+    pos_noun = 0,
+    pos_adjective = 1,
+    pos_verb = 2,
+    pos_3 = 3, //"МС"
+    pos_4 = 4, //"МС-П"
+    pos_5 = 5, //"МС-ПРЕДК"
+    pos_6 = 6, //"ЧИСЛ"
+    pos_7 = 7, //"ЧИСЛ-П"
+    pos_adverb = 8, //"Н", // 8
+    pos_9 = 9, //"ПРЕДК"
+    pos_10 = 10, //"ПРЕДЛ"
+    pos_11 = 11, //"ПОСЛ"
+    pos_12 = 12, //"СОЮЗ"
+    pos_13 = 13, //"МЕЖД"
+    pos_14 = 14, //"ВВОДН"
+    pos_15 = 15, //"ФРАЗ"
+    pos_16 = 16, //"ЧАСТ"
+    pos_short_adjective = 17,
+    pos_adj_participle = 18, //"ПРИЧАСТИЕ"
+    pos_adv_participle = 19, //"ДЕЕПРИЧАСТИЕ"
+    pos_short_participle = 20,
+    pos_infinitive = 21,
+  };
+
+enum
+  {
+    gm_plural = 0,
+    gm_singular = 1,
+    gm_nominative = 2,
+    gm_genitive = 3,
+    gm_dative = 4,
+    gm_accusative = 5,
+    gm_instrumental = 6,
+    gm_prepositional = 7,
+    gm_vocative = 8,
+    gm_masculine = 9,
+    gm_feminine = 10,
+    gm_neuter = 11,
+    gm_masc_femin = 12,
+    gm_present = 13,
+    gm_future = 14,
+    gm_past = 15,
+    gm_1st_person = 16,
+    gm_2nd_person = 17,
+    gm_3rd_person = 18,
+    gm_imperative = 19,
+    gm_animate = 20,
+    gm_inanimate = 21,
+    gm_comparative = 22,
+    gm_perfective = 23,
+    gm_imperfective = 24,
+    gm_25 = 25, //"нп"
+    gm_26 = 26, //"пе"
+    gm_active = 27,
+    gm_passive = 28,
+    gm_0 = 29, // "0"
+    gm_abbr = 30, //"аббр"
+    gm_patronymic = 31, //"отч" ???
+    gm_32 = 32, //"лок"
+    gm_33 = 33, //"орг"
+    gm_34 = 34, //"кач"
+    gm_35 = 35, //"дфст"
+    gm_36 = 36, // (наречия) "вопр"
+    gm_37 = 37, // (наречия) "указат"
+    gm_first_name = 38,
+    gm_surname = 39,
+    gm_impersonal = 40, //"безл" ???
+    gm_jargon = 41, //"жарг"
+    gm_42 = 42, //"опч"
+    gm_colloquial = 43, //"разг"
+    gm_44 = 44, //"притяж"
+    gm_45 = 45, //"арх"
+    gm_secondary = 46, // для второго родительного и второго предложного
+    gm_poetic = 47,
+    gm_prof = 48,
+    gm_superlative = 49, //"прев"
+    gm_positive = 50, //"полож"
+  };

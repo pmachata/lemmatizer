@@ -10,11 +10,11 @@ class gramcodes;
 
 class grammeme
 {
-  gramcodes const &_m_gc;
+  CAgramtab *_m_agramtab;
   size_t _m_idx;
 
 public:
-  grammeme (gramcodes const &gc, size_t idx);
+  grammeme (CAgramtab *agramtab, size_t idx);
   grammeme (grammeme const &copy);
   grammeme &operator= (grammeme &copy);
 

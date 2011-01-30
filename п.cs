@@ -1,5 +1,5 @@
 <?cs include:"header.cs"
-?>прилагательное:	<?cs call:out_variants(Form["ед,им,мр,од,но"]) ?>
+?>== прилагательное ==
 
 	мр		жр		ср		мн
 им.	<?cs call:out_variants(Form["ед,им,мр,од,но"]) ?>	<?cs call:out_variants(Form["ед,им,жр,од,но"]) ?>	<?cs call:out_variants(Form["ед,им,ср,од,но"]) ?>	<?cs call:out_variants(Form["мн,им,од,но"]) ?>

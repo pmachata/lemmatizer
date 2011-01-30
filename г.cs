@@ -1,6 +1,8 @@
 <?cs include:"header.cs"
 
-?>глагол:	<?cs call:out_variants(Form["дст"]) ?>
+?>== глагол ==
+
+инф:	<?cs call:out_variants(Form["дст"]) ?>
 
 <?cs
 

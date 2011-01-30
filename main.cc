@@ -16,7 +16,7 @@
 #include "forms.hh"
 #include "part_of_speech.hh"
 #include "config.hh"
-
+#include "rus_gramtab.hh"
 
 void fail (std::string const &reason)
 {
@@ -249,6 +249,7 @@ public:
 	    typedef std::map<std::string, std::vector<std::string> > form_map_t;
 	    form_map_t form_map;
 
+	    int gender = -1;
 	    for (lemmatize::forms::const_iterator ft = forms.begin ();
 		 ft != forms.end (); ++ft)
 	      {
@@ -257,14 +258,58 @@ public:
 
 		std::vector<grammeme> grammemes = ac.grammemes ();
 		std::stringstream ss;
+
+		bool first = true;
+		bool is_masculine = false;
+		bool is_feminine = false;
+		bool is_neuter = false;
 		for (std::vector<grammeme>::const_iterator gt = grammemes.begin ();
 		     gt != grammemes.end (); ++gt)
-		  ss << (gt == grammemes.begin () ? "" : ",") << gt->c_str ();
+		  {
+		    // For nouns, we want the information about gender
+		    // extracted and stored separately.
+		    if (pos.number () == pos_noun)
+		      switch (gt->value ())
+			{
+			case gm_masculine:
+			  is_masculine = true;
+			  continue;
+			case gm_feminine:
+			  is_feminine = true;
+			  continue;
+			case gm_neuter:
+			  is_neuter = true;
+			  continue;
+			case gm_masc_femin:
+			  is_masculine = true;
+			  is_feminine = true;
+			  continue;
+			}
+
+		    ss << (first ? "" : ",") << gt->c_str ();
+		    first = false;
+		  }
 
 		// no categories?
 		if (grammemes.begin () == grammemes.end ())
 		  ss << "_";
 		std::string category = show (ss.str ());
+
+		if (pos.number () == pos_noun)
+		  {
+		    if (is_masculine && is_feminine && !is_neuter)
+		      gender = gm_masc_femin;
+		    else if (is_masculine && !is_feminine && !is_neuter)
+		      gender = gm_masculine;
+		    else if (!is_masculine && is_feminine && !is_neuter)
+		      gender = gm_feminine;
+		    else if (!is_masculine && !is_feminine && is_neuter)
+		      gender = gm_neuter;
+		    else
+		      std::cout << "warning: unknown noun gender (masc="
+				<< is_masculine << ", fem=" << is_feminine
+				<< ", n=" << is_neuter << ")." << std::endl;
+		  }
 
 		form_map[category].push_back (form);
 	      }
@@ -278,6 +323,14 @@ public:
 		for (size_t i = 0; i < it->second.size (); ++i)
 		  handle_neoerr (hdf_set_valuef (node, "%zd=%s", i,
 						 it->second[i].c_str ()));
+	      }
+
+	    if (gender != -1)
+	      {
+		grammeme (_m_agramtab, gender);
+		std::string gender_str = show (grammeme (_m_agramtab,
+							 gender).c_str ());
+		hdf_set_value (data, "gender", gender_str.c_str ());
 	      }
 
 	    handle_neoerr (hdf_dump (data, ">"));

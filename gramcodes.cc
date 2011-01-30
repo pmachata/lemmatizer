@@ -46,14 +46,14 @@ gramcodes::grammemes () const
 }
 
 
-grammeme::grammeme (gramcodes const &gc, size_t idx)
-  : _m_gc (gc)
+grammeme::grammeme (CAgramtab *agramtab, size_t idx)
+  : _m_agramtab (agramtab)
   , _m_idx (idx)
 {
 }
 
 grammeme::grammeme (grammeme const &copy)
-  : _m_gc (copy._m_gc)
+  : _m_agramtab (copy._m_agramtab)
   , _m_idx (copy._m_idx)
 {
 }
@@ -61,6 +61,7 @@ grammeme::grammeme (grammeme const &copy)
 grammeme &
 grammeme::operator= (grammeme &copy)
 {
+  _m_agramtab = copy._m_agramtab;
   _m_idx = copy._m_idx;
   return *this;
 }
@@ -68,7 +69,7 @@ grammeme::operator= (grammeme &copy)
 char const *
 grammeme::c_str () const
 {
-  return _m_gc._m_agramtab->GetGrammemStr (_m_idx);
+  return _m_agramtab->GetGrammemStr (_m_idx);
 }
 
 size_t
@@ -161,7 +162,7 @@ gramcodes::const_iterator::grammemes () const
   _m_gc._m_agramtab->GetGrammems (**this, g);
   for (size_t i = 0; i < _m_gc._m_agramtab->GetGrammemsCount (); ++i)
     if (_QM(i) & g)
-      ret.push_back (grammeme (_m_gc, i));
+      ret.push_back (grammeme (_m_gc._m_agramtab, i));
 
   return ret;
 }
