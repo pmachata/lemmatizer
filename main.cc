@@ -17,14 +17,18 @@
 #include "part_of_speech.hh"
 #include "config.hh"
 #include "rus_gramtab.hh"
+#include "pos_handler.hh"
+#include "noun.hh"
 
-void fail (std::string const &reason)
+void
+fail (std::string const &reason)
 {
   throw std::runtime_error (reason + ": " + std::strerror (errno) + ".");
 }
 
 // Convert multi-byte string to wide string.
-std::wstring to_w (std::string s)
+std::wstring
+to_w (std::string s)
 {
   wchar_t buf[s.length () + 1];
   char const *src = s.c_str ();
@@ -36,7 +40,8 @@ std::wstring to_w (std::string s)
 }
 
 // Convert wide string to multi-byte string.
-std::string to_mb (std::wstring s)
+std::string
+to_mb (std::wstring s)
 {
   // ask how much we need
   wchar_t const *src = s.c_str ();
@@ -51,13 +56,15 @@ std::string to_mb (std::wstring s)
 }
 
 // Convert wide string to lower-case.
-void to_lower (std::wstring &word)
+void
+to_lower (std::wstring &word)
 {
   std::transform (word.begin (), word.end (), word.begin (), towlower);
 }
 
 // iconv convenience wrapper.
-std::string convert (std::string const &word, iconv_t ic_d)
+std::string
+convert (std::string const &word, iconv_t ic_d)
 {
   char *inbuf = const_cast<char *>(word.c_str ());
   size_t inbuf_size = strlen (inbuf);
@@ -77,7 +84,8 @@ std::string convert (std::string const &word, iconv_t ic_d)
   return outbuf;
 }
 
-void handle_neoerr (NEOERR *err)
+void
+handle_neoerr (NEOERR *err)
 {
   if (err != NULL)
     {
@@ -90,6 +98,155 @@ void handle_neoerr (NEOERR *err)
     }
 }
 
+class hdf
+{
+  HDF *_m_hdf;
+
+public:
+  hdf ()
+  {
+    handle_neoerr (hdf_init (&_m_hdf));
+  }
+
+  ~hdf ()
+  {
+    hdf_destroy (&_m_hdf);
+  }
+
+  operator HDF* ()
+  {
+    return _m_hdf;
+  }
+};
+
+class default_hdf
+  : public hdf
+{
+public:
+  default_hdf ()
+  {
+    handle_neoerr (hdf_set_valuef (*this, "hdf.loadpaths.0=%s",
+				   config::path.c_str ()));
+  }
+};
+
+class template_cache
+  : public std::vector<CSPARSE *>
+{
+  typedef std::vector<CSPARSE *> super_t;
+public:
+  CSPARSE *add (HDF *hdf, int id, char const *template_name)
+  {
+    assert (id >= 0);
+    if ((size_t)id >= size ())
+      resize ((size_t)id + 1);
+    assert (at (id) == NULL);
+
+    CSPARSE *parse;
+    handle_neoerr (cs_init (&parse, hdf));
+    handle_neoerr (cs_parse_file (parse, template_name));
+    (*this)[id] = parse;
+
+    return get (id);
+  }
+
+  CSPARSE *get (int id)
+  {
+    if (id < 0 || (size_t)id >= size ())
+      return NULL;
+    else
+      return (*this)[id];
+  }
+
+  ~template_cache ()
+  {
+    for (const_iterator it = begin (); it != end (); ++it)
+      {
+	CSPARSE *parse = *it;
+	cs_destroy (&parse);
+      }
+  }
+};
+
+class adjective_handler
+  : public pos_handler
+{
+public:
+  adjective_handler ()
+    : pos_handler ("adjective")
+  {}
+};
+
+
+class verb_handler
+  : public pos_handler
+{
+public:
+  verb_handler ()
+    : pos_handler ("verb")
+  {}
+};
+
+class pos_handler_map
+  : private std::map<int, pos_handler const *>
+{
+public:
+  pos_handler_map ()
+  {
+    insert (std::make_pair ((int)pos_noun, new noun_handler ()));
+    insert (std::make_pair ((int)pos_verb, new verb_handler ()));
+    insert (std::make_pair ((int)pos_adjective, new adjective_handler ()));
+  }
+
+  ~pos_handler_map ()
+  {
+    std::set<pos_handler const *> deleted;
+    for (iterator it = begin (); it != end (); ++it)
+      {
+	// Take care not to delete twice.  We update the cache for
+	// delegation.
+	pos_handler const *to_delete = it->second;
+	if (deleted.find (to_delete) == deleted.end ())
+	  delete to_delete;
+	deleted.insert (to_delete);
+      }
+  }
+
+  virtual pos_handler const *
+  get_handler (int pos)
+  {
+    int orig_pos = pos;
+    int delegated_pos;
+    pos_handler const *handler = NULL;
+    while (true)
+      {
+	const_iterator it = find (pos);
+	if (it == end ())
+	  return NULL;
+	handler = it->second;
+	delegated_pos = pos;
+	pos = handler->delegate ();
+	if (pos == -1)
+	  break;
+
+	// Guard against infinite cycle.
+	if (pos == orig_pos)
+	  return NULL;
+      }
+    assert (handler != NULL);
+
+    // Update the cache so that we don't have to go through delegation
+    // loops next time around.
+    if (delegated_pos != orig_pos)
+      {
+	delete (*this)[orig_pos];
+	(*this)[orig_pos] = handler;
+      }
+
+    return handler;
+  }
+};
+
 // Use this character as an accent mark.  This must be a wchar_t
 // constant.  In non-unicode environment, this should be set to L"'"
 // or some such.
@@ -101,6 +258,8 @@ class lemmatizer_app
   CAgramtab *_m_agramtab;
   iconv_t _m_iconv_to;
   iconv_t _m_iconv_from;
+  pos_handler_map _m_handlers;
+  template_cache _m_templates;
 
   template <class T>
   T check (T retval, std::string const &reason)
@@ -149,76 +308,9 @@ public:
     return mbw;
   }
 
-  class hdf
-  {
-    HDF *_m_hdf;
-
-  public:
-    hdf ()
-    {
-      handle_neoerr (hdf_init (&_m_hdf));
-    }
-
-    ~hdf ()
-    {
-      hdf_destroy (&_m_hdf);
-    }
-
-    operator HDF *()
-    {
-      return _m_hdf;
-    }
-  };
-
-  class template_cache
-    : public std::vector<CSPARSE *>
-  {
-    typedef std::vector<CSPARSE *> super_t;
-  public:
-    void push_back (HDF *hdf, std::string const &filename)
-    {
-      CSPARSE *parse;
-      handle_neoerr (cs_init (&parse, hdf));
-      handle_neoerr (cs_parse_file (parse, filename.c_str ()));
-      super_t::push_back (parse);
-    }
-
-    using super_t::push_back;
-
-    ~template_cache ()
-    {
-      for (const_iterator it = begin (); it != end (); ++it)
-	{
-	  CSPARSE *parse = *it;
-	  cs_destroy (&parse);
-	}
-    }
-  };
-
   int run ()
   {
     std::cout << "Content-type: text/html\n\n";
-
-    hdf data;
-    handle_neoerr (hdf_set_valuef (data, "hdf.loadpaths.0=%s",
-				   config::path.c_str ()));
-
-    size_t n = _m_agramtab->GetPartOfSpeechesCount ();
-    assert (n < 100); // make sure it's sane
-    template_cache templates;
-    for (size_t i = 0; i < n; ++i)
-      try
-	{
-	  // NB this calls load_template, so absolute path isn't
-	  // necessary
-	  templates.push_back
-	    (data, show (_m_agramtab->GetPartOfSpeechStr (i)) + ".cs");
-	}
-      catch (std::runtime_error const &err)
-	{
-	  templates.push_back (NULL);
-	  std::cerr << err.what () << std::endl;
-	}
 
     while (true)
       {
@@ -242,98 +334,7 @@ public:
 	    std::cout << "src norm: " << show (it->GetSrcNorm ()) << std::endl;
 
 	    part_of_speech pos = it.get_part_of_speech ();
-	    std::cout << "p.o.s.:   " << pos.number ()
-		      << " (" << show (pos.name ()) << ")" << std::endl;
-
 	    lemmatize::forms forms = it.forms ();
-	    typedef std::map<std::string, std::vector<std::string> > form_map_t;
-	    form_map_t form_map;
-
-	    int gender = -1;
-	    for (lemmatize::forms::const_iterator ft = forms.begin ();
-		 ft != forms.end (); ++ft)
-	      {
-		std::string form = show (*ft, ft.accent ());
-		gramcodes ac = ft.ancode ();
-
-		std::vector<grammeme> grammemes = ac.grammemes ();
-		std::stringstream ss;
-
-		bool first = true;
-		bool is_masculine = false;
-		bool is_feminine = false;
-		bool is_neuter = false;
-		for (std::vector<grammeme>::const_iterator gt = grammemes.begin ();
-		     gt != grammemes.end (); ++gt)
-		  {
-		    // For nouns, we want the information about gender
-		    // extracted and stored separately.
-		    if (pos.number () == pos_noun)
-		      switch (gt->value ())
-			{
-			case gm_masculine:
-			  is_masculine = true;
-			  continue;
-			case gm_feminine:
-			  is_feminine = true;
-			  continue;
-			case gm_neuter:
-			  is_neuter = true;
-			  continue;
-			case gm_masc_femin:
-			  is_masculine = true;
-			  is_feminine = true;
-			  continue;
-			}
-
-		    ss << (first ? "" : ",") << gt->c_str ();
-		    first = false;
-		  }
-
-		// no categories?
-		if (grammemes.begin () == grammemes.end ())
-		  ss << "_";
-		std::string category = show (ss.str ());
-
-		if (pos.number () == pos_noun)
-		  {
-		    if (is_masculine && is_feminine && !is_neuter)
-		      gender = gm_masc_femin;
-		    else if (is_masculine && !is_feminine && !is_neuter)
-		      gender = gm_masculine;
-		    else if (!is_masculine && is_feminine && !is_neuter)
-		      gender = gm_feminine;
-		    else if (!is_masculine && !is_feminine && is_neuter)
-		      gender = gm_neuter;
-		    else
-		      std::cout << "warning: unknown noun gender (masc="
-				<< is_masculine << ", fem=" << is_feminine
-				<< ", n=" << is_neuter << ")." << std::endl;
-		  }
-
-		form_map[category].push_back (form);
-	      }
-
-	    for (form_map_t::const_iterator it = form_map.begin ();
-		 it != form_map.end (); ++it)
-	      {
-		std::string name = std::string ("Form.") + it->first;
-		HDF *node;
-		handle_neoerr (hdf_get_node (data, name.c_str (), &node));
-		for (size_t i = 0; i < it->second.size (); ++i)
-		  handle_neoerr (hdf_set_valuef (node, "%zd=%s", i,
-						 it->second[i].c_str ()));
-	      }
-
-	    if (gender != -1)
-	      {
-		grammeme (_m_agramtab, gender);
-		std::string gender_str = show (grammeme (_m_agramtab,
-							 gender).c_str ());
-		hdf_set_value (data, "gender", gender_str.c_str ());
-	      }
-
-	    handle_neoerr (hdf_dump (data, ">"));
 
 	    struct _
 	    {
@@ -344,14 +345,55 @@ public:
 	      }
 	    };
 
-	    CSPARSE *tmpl = templates.at (pos.number ());
-	    if (tmpl != NULL)
-	      handle_neoerr (cs_render (tmpl, this, &_::render_cb));
-	    else
-	      std::cout << "No template for " << show (pos.name ())
-			<< "." << std::endl;
-	    handle_neoerr (hdf_remove_tree (data, "Form"));
+	    pos_handler const *handler
+	      = _m_handlers.get_handler (pos.number ());
+	    if (handler == NULL)
+	      {
+		std::cout << "No handler for part of speech \""
+			  << show (pos.name ()) << "\" ("
+			  << pos.number () << ")." << std::endl;
+		continue;
+	      }
 
+	    default_hdf hdf;
+
+	    CSPARSE *tmpl = _m_templates.get (pos.number ());
+	    if (tmpl == NULL)
+	      {
+		std::string file_name = handler->template_name ();
+		file_name += ".cs";
+		tmpl = _m_templates.add (hdf, pos.number (),
+					 file_name.c_str ());
+		if (tmpl == NULL)
+		  {
+		    std::cout << "Couldn't load the template \""
+			      << file_name << "\"." << std::endl;
+		    continue;
+		  }
+	      }
+	    assert (tmpl != NULL);
+
+	    hdf_data_map data;
+	    handler->fill_hdf (_m_agramtab, it, data);
+
+	    for (hdf_data_map::const_iterator it = data.begin ();
+		 it != data.end (); ++it)
+	      {
+		std::string name = std::string ("Form.") + it->first;
+		HDF *node;
+		handle_neoerr (hdf_get_node (hdf, name.c_str (), &node));
+		for (size_t i = 0; i < it->second.size (); ++i)
+		  {
+		    std::string const &word = it->second[i].first;
+		    int accent = it->second[i].second;
+		    std::string final = show (word, accent);
+		    handle_neoerr (hdf_set_valuef (node, "%zd=%s",
+						   i, final.c_str ()));
+		  }
+	      }
+
+	    handle_neoerr (hdf_dump (hdf, ">"));
+	    handle_neoerr (cs_render (tmpl, this, &_::render_cb));
 	  }
       }
     return 0;

@@ -16,9 +16,31 @@ public:
   {
   }
 
-  int number () const
+  part_of_speech (part_of_speech const &copy)
+    : _m_agramtab (copy._m_agramtab)
+    , _m_part_of_speech (copy._m_part_of_speech)
+  {
+  }
+
+  part_of_speech &
+  operator= (part_of_speech const &copy)
+  {
+    _m_agramtab = copy._m_agramtab;
+    _m_part_of_speech = copy._m_part_of_speech;
+    return *this;
+  }
+
+  int
+  number () const
   {
     return _m_part_of_speech;
+  }
+
+  bool
+  operator< (part_of_speech const &other) const
+  {
+    assert (_m_agramtab == other._m_agramtab);
+    return _m_part_of_speech < other._m_part_of_speech;
   }
 
   std::string name () const;
