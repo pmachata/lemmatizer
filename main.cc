@@ -11,16 +11,14 @@
 #include <cs/cs.h>
 #include <util/neo_files.h>
 
-#include "lemmatize.hh"
-#include "gramcodes.hh"
-#include "forms.hh"
-#include "part_of_speech.hh"
 #include "config.hh"
-#include "rus_gramtab.hh"
+#include "forms.hh"
+#include "gramcodes.hh"
+#include "lemmatize.hh"
+#include "part_of_speech.hh"
 #include "pos_handler.hh"
-#include "noun.hh"
-#include "adjective.hh"
-#include "simple.hh"
+#include "renderer.hh"
+#include "rus_gramtab.hh"
 
 void
 fail (std::string const &reason)
@@ -170,88 +168,6 @@ public:
   }
 };
 
-class verb_handler
-  : public pos_handler
-{
-public:
-  verb_handler ()
-    : pos_handler ("verb")
-  {}
-};
-
-class pos_handler_map
-  : private std::map<int, pos_handler const *>
-{
-public:
-  pos_handler_map ()
-  {
-    insert (std::make_pair ((int)pos_noun,
-			    new noun_handler ()));
-
-    insert (std::make_pair ((int)pos_verb,
-			    new verb_handler ()));
-
-    insert (std::make_pair ((int)pos_adjective,
-			    new adjective_handler ()));
-
-    insert (std::make_pair ((int)pos_short_adjective,
-			    new short_adjective_handler ()));
-
-    // We can share handlers.
-    pos_handler const *simple = new simple_handler ();
-    insert (std::make_pair ((int)pos_adverb, simple));
-    insert (std::make_pair ((int)pos_interjection, simple));
-  }
-
-  ~pos_handler_map ()
-  {
-    std::set<pos_handler const *> deleted;
-    for (iterator it = begin (); it != end (); ++it)
-      {
-	// Take care not to delete twice.  We update the cache for
-	// delegation.
-	pos_handler const *to_delete = it->second;
-	if (deleted.find (to_delete) == deleted.end ())
-	  delete to_delete;
-	deleted.insert (to_delete);
-      }
-  }
-
-  virtual pos_handler const *
-  get_handler (int pos)
-  {
-    int orig_pos = pos;
-    int delegated_pos;
-    pos_handler const *handler = NULL;
-    while (true)
-      {
-	const_iterator it = find (pos);
-	if (it == end ())
-	  return NULL;
-	handler = it->second;
-	delegated_pos = pos;
-	pos = handler->delegate ();
-	if (pos == -1)
-	  break;
-
-	// Guard against infinite cycle.
-	if (pos == orig_pos)
-	  return NULL;
-      }
-    assert (handler != NULL);
-
-    // Update the cache so that we don't have to go through delegation
-    // loops next time around.
-    if (delegated_pos != orig_pos)
-      {
-	delete (*this)[orig_pos];
-	(*this)[orig_pos] = handler;
-      }
-
-    return handler;
-  }
-};
-
 // Use this character as an accent mark.  This must be a wchar_t
 // constant.  In non-unicode environment, this should be set to L"'"
 // or some such.
@@ -313,9 +229,86 @@ public:
     return mbw;
   }
 
-  int run ()
+  void
+  process (std::string const &line, renderer *ren)
   {
-    std::cout << "Content-type: text/html\n\n";
+    std::cout << "convert:  " << line << std::endl;
+
+    lemmatize lem (convert (line, _m_iconv_to), _m_lemmatizer, _m_agramtab);
+    for (lemmatize::const_iterator it = lem.begin ();
+	 it != lem.end (); ++it)
+      {
+	std::cout << "found:    " << (it.found () ? "yes" : "no")
+		  << " (id " << std::hex << it->GetParadigmId () << std::dec << ")" << std::endl;
+	std::cout << "src norm: " << show (it->GetSrcNorm ()) << std::endl;
+
+	part_of_speech pos = it.get_part_of_speech ();
+	lemmatize::forms forms = it.forms ();
+
+	pos_handler const *handler
+	  = _m_handlers.get_handler (pos.number ());
+	if (handler == NULL)
+	  {
+	    std::cout << "No handler for part of speech \""
+		      << show (pos.name ()) << "\" ("
+		      << pos.number () << ")." << std::endl;
+	    continue;
+	  }
+
+	default_hdf hdf;
+
+	CSPARSE *tmpl = _m_templates.get (pos.number ());
+	if (tmpl == NULL)
+	  {
+	    std::string file_name = handler->template_name ();
+	    file_name += ".cs";
+	    tmpl = _m_templates.add (hdf, pos.number (),
+				     file_name.c_str ());
+	    if (tmpl == NULL)
+	      {
+		std::cout << "Couldn't load the template \""
+			  << file_name << "\"." << std::endl;
+		continue;
+	      }
+	  }
+	assert (tmpl != NULL);
+
+	hdf_data_map data;
+	handler->fill_hdf (_m_agramtab, it, data);
+
+	for (hdf_data_map::const_iterator it = data.begin ();
+	     it != data.end (); ++it)
+	  {
+	    std::string name = std::string ("Form.") + it->first;
+	    HDF *node;
+	    handle_neoerr (hdf_get_node (hdf, name.c_str (), &node));
+	    for (size_t i = 0; i < it->second.size (); ++i)
+	      {
+		std::string const &word = it->second[i].first;
+		int accent = it->second[i].second;
+		std::string final = show (word, accent);
+		handle_neoerr (hdf_set_valuef (node, "%zd=%s",
+					       i, final.c_str ()));
+	      }
+	  }
+
+	handle_neoerr (hdf_dump (hdf, ">"));
+
+	struct _ {
+	  static NEOERR *render_cb (void *data, char *str)
+	  {
+	    renderer *r = (renderer *)data;
+	    return r->render (str);
+	  }
+	};
+	handle_neoerr (cs_render (tmpl, ren, &_::render_cb));
+      }
+  }
+
+  int
+  run ()
+  {
+    stream_renderer cout_renderer (std::cout);
 
     while (true)
       {
@@ -328,79 +321,18 @@ public:
 	std::wstring wline = to_w (line);
 	to_lower (wline);
 	line = to_mb (wline);
-	std::cout << "convert:  " << line << std::endl;
 
-	lemmatize lem (convert (line, _m_iconv_to), _m_lemmatizer, _m_agramtab);
-	for (lemmatize::const_iterator it = lem.begin ();
-	     it != lem.end (); ++it)
-	  {
-	    std::cout << "found:    " << (it.found () ? "yes" : "no")
-		      << " (id " << std::hex << it->GetParadigmId () << std::dec << ")" << std::endl;
-	    std::cout << "src norm: " << show (it->GetSrcNorm ()) << std::endl;
-
-	    part_of_speech pos = it.get_part_of_speech ();
-	    lemmatize::forms forms = it.forms ();
-
-	    struct _
-	    {
-	      static NEOERR *render_cb (void *data, char *str)
-	      {
-		std::cout << str;
-		return NULL;
-	      }
-	    };
-
-	    pos_handler const *handler
-	      = _m_handlers.get_handler (pos.number ());
-	    if (handler == NULL)
-	      {
-		std::cout << "No handler for part of speech \""
-			  << show (pos.name ()) << "\" ("
-			  << pos.number () << ")." << std::endl;
-		continue;
-	      }
-
-	    default_hdf hdf;
-
-	    CSPARSE *tmpl = _m_templates.get (pos.number ());
-	    if (tmpl == NULL)
-	      {
-		std::string file_name = handler->template_name ();
-		file_name += ".cs";
-		tmpl = _m_templates.add (hdf, pos.number (),
-					 file_name.c_str ());
-		if (tmpl == NULL)
-		  {
-		    std::cout << "Couldn't load the template \""
-			      << file_name << "\"." << std::endl;
-		    continue;
-		  }
-	      }
-	    assert (tmpl != NULL);
-
-	    hdf_data_map data;
-	    handler->fill_hdf (_m_agramtab, it, data);
-
-	    for (hdf_data_map::const_iterator it = data.begin ();
-		 it != data.end (); ++it)
-	      {
-		std::string name = std::string ("Form.") + it->first;
-		HDF *node;
-		handle_neoerr (hdf_get_node (hdf, name.c_str (), &node));
-		for (size_t i = 0; i < it->second.size (); ++i)
-		  {
-		    std::string const &word = it->second[i].first;
-		    int accent = it->second[i].second;
-		    std::string final = show (word, accent);
-		    handle_neoerr (hdf_set_valuef (node, "%zd=%s",
-						   i, final.c_str ()));
-		  }
-	      }
-
-	    handle_neoerr (hdf_dump (hdf, ">"));
-	    handle_neoerr (cs_render (tmpl, this, &_::render_cb));
-	  }
+	process (line, &cout_renderer);
       }
+    return 0;
+  }
+
+  int
+  fcgi_run ()
+  {
+    fcgi_renderer renderer;
+    std::cout << "Content-type: text/html\n\n";
+    process ("", &renderer);
     return 0;
   }
 };

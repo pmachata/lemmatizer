@@ -13,9 +13,10 @@ all: $(TARGETS)
 
 lemmatizer: LDFLAGS += -lLemmatizerrsh -lAgramtabrsh -lGraphanrsh \
 	-lStructDictrsh -lMorphWizardrsh -lneo_cs -lneo_utl
-main.o: CXXPPFLAGS += -I/usr/include/ClearSilver
-lemmatizer: main.o gramcodes.o forms.o lemmatize.o part_of_speech.o \
-	pos_handler.o noun.o adjective.o format.o rus_gramtab.o simple.o
+renderer.o main.o: CXXPPFLAGS += -I/usr/include/ClearSilver
+lemmatizer: adjective.o format.o forms.o gramcodes.o lemmatize.o main.o \
+	noun.o part_of_speech.o pos_handler.o renderer.o rus_gramtab.o \
+	simple.o verb.o
 
 -include $(DEPFILES)
 

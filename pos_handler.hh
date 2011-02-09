@@ -40,6 +40,15 @@ struct delegating_pos_handler
   {}
 };
 
+class pos_handler_map
+  : private std::map<int, pos_handler const *>
+{
+public:
+  pos_handler_map ();
+  ~pos_handler_map ();
+  virtual pos_handler const *get_handler (int pos);
+};
+
 #define FAIL(T) (assert (false), (T)NULL)
 
 #endif//POS_HANDLER_HH
