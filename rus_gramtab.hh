@@ -3,6 +3,7 @@
 
 enum pos_code_t
   {
+    pos__invalid = -1,
     pos_noun = 0,
     pos_adjective = 1,
     pos_verb = 2,
@@ -16,7 +17,7 @@ enum pos_code_t
     pos_10 = 10, //"ПРЕДЛ"
     pos_11 = 11, //"ПОСЛ"
     pos_12 = 12, //"СОЮЗ"
-    pos_13 = 13, //"МЕЖД"
+    pos_interjection = 13,
     pos_14 = 14, //"ВВОДН"
     pos_15 = 15, //"ФРАЗ"
     pos_16 = 16, //"ЧАСТ"

@@ -36,6 +36,11 @@ public:
     return _m_part_of_speech;
   }
 
+  template <class T> T number_as () const
+  {
+    return static_cast<T> (number ());
+  }
+
   bool
   operator< (part_of_speech const &other) const
   {

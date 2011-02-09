@@ -62,7 +62,7 @@ noun_handler::fill_hdf (CAgramtab *agramtab,
   if (gender == gm__invalid)
     throw std::runtime_error ("Can't determine gender.");
 
-  char const *word = format_rus_grammeme_value (gender);
+  char const *word = format_rus (gender);
   data["gender"].push_back (std::make_pair (word, -1));
 
   for (lemmatize::forms::const_iterator ft = forms.begin ();
@@ -87,8 +87,8 @@ noun_handler::fill_hdf (CAgramtab *agramtab,
 	throw std::runtime_error ("Can't determine case.");
 
       std::string field = str (boost::format ("%s.%s")
-			       % format_rus_grammeme_value (gnumber)
-			       % format_rus_grammeme_value (gcase));
+			       % format_rus (gnumber)
+			       % format_rus (gcase));
 
       data[field].push_back (std::make_pair (*ft, ft.accent ()));
     }

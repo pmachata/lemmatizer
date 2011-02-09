@@ -20,6 +20,7 @@
 #include "pos_handler.hh"
 #include "noun.hh"
 #include "adjective.hh"
+#include "simple.hh"
 
 void
 fail (std::string const &reason)
@@ -195,6 +196,11 @@ public:
 
     insert (std::make_pair ((int)pos_short_adjective,
 			    new short_adjective_handler ()));
+
+    // We can share handlers.
+    pos_handler const *simple = new simple_handler ();
+    insert (std::make_pair ((int)pos_adverb, simple));
+    insert (std::make_pair ((int)pos_interjection, simple));
   }
 
   ~pos_handler_map ()

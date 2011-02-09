@@ -22,8 +22,8 @@ adjective_handler::fill_hdf (CAgramtab *agramtab,
       gram_code_t gnumber = gm__invalid;
       gram_code_t gcase = gm__invalid;
       gram_code_t gender = gm__invalid;
-      bool animated = false;
-      bool inanimated = false;
+      bool animate = false;
+      bool inanimate = false;
       gram_code_t degree = gm__invalid;
       bool secondary = false;
 
@@ -59,12 +59,12 @@ adjective_handler::fill_hdf (CAgramtab *agramtab,
       bool is_short = gcase == gm__invalid && degree == gm_positive;
 
       std::ostringstream os;
-      os << format_rus_grammeme_value (degree);
+      os << format_rus (degree);
 
       if (degree == gm_comparative)
 	{
 	  if (secondary)
-	    os << '.' << format_rus_grammeme_value (gm_secondary);
+	    os << '.' << format_rus (gm_secondary);
 	  else
 	    os << ".primary";
 	}
@@ -77,21 +77,20 @@ adjective_handler::fill_hdf (CAgramtab *agramtab,
 	  if (gender != gm__invalid)
 	    {
 	      assert (gnumber == gm_singular);
-	      os << '.' << format_rus_grammeme_value (gender);
+	      os << '.' << format_rus (gender);
 	    }
 	  else
 	    {
 	      assert (gnumber == gm_plural);
-	      os << '.' << format_rus_grammeme_value (gnumber);
+	      os << '.' << format_rus (gnumber);
 	    }
 	}
 
       if (gcase != gm__invalid)
-	os << '.' << format_rus_grammeme_value (gcase);
+	os << '.' << format_rus (gcase);
 
       if ((animate || inanimate) && !(animate && inanimate))
-	os << '.' << format_rus_grammeme_value (animate ? gm_animate
-						: gm_inanimate);
+	os << '.' << format_rus (animate ? gm_animate : gm_inanimate);
 
       data[os.str ()].push_back (std::make_pair (*ft, ft.accent ()));
     }

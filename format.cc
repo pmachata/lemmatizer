@@ -2,7 +2,49 @@
 #include "rus_gramtab.hh"
 
 char const *
-format_rus_grammeme_value (gram_code_t val)
+format_rus (pos_code_t val)
+{
+  switch (val)
+    {
+    case pos_noun:
+      return "noun";
+    case pos_adjective:
+      return "adjective";
+    case pos_verb:
+      return "verb";
+    case pos_adverb:
+      return "adverb";
+    case pos_interjection:
+      return "interjection";
+
+    case pos_3:
+    case pos_4:
+    case pos_5:
+    case pos_6:
+    case pos_7:
+    case pos_9:
+    case pos_10:
+    case pos_11:
+    case pos_12:
+    case pos_14:
+    case pos_15:
+    case pos_16:
+    case pos_short_adjective:
+    case pos_adj_participle:
+    case pos_adv_participle:
+    case pos_short_participle:
+    case pos_infinitive:
+    case pos__invalid:
+      break;
+  };
+
+  throw std::runtime_error
+    (str (boost::format ("Cannot determine how to call part of speech %d.")
+	  % val));
+}
+
+char const *
+format_rus (gram_code_t val)
 {
   switch (val)
     {

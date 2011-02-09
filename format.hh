@@ -3,6 +3,8 @@
 
 #include "rus_gramtab.hh"
 
-char const *format_rus_grammeme_value (gram_code_t code);
+// Renders Russian codes in English.
+char const *format_rus (pos_code_t code);
+char const *format_rus (gram_code_t code);
 
 #endif//FORMAT_HH
