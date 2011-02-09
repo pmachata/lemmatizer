@@ -2,25 +2,97 @@
 ?>== прилагательное ==
 
 	мр		жр		ср		мн
-им.	<?cs call:out_variants(Form["ед,им,мр,од,но"]) ?>	<?cs call:out_variants(Form["ед,им,жр,од,но"]) ?>	<?cs call:out_variants(Form["ед,им,ср,од,но"]) ?>	<?cs call:out_variants(Form["мн,им,од,но"]) ?>
-р.	<?cs call:out_variants(Form["ед,рд,мр,од,но"]) ?>	<?cs call:out_variants(Form["ед,рд,жр,од,но"]) ?>	<?cs call:out_variants(Form["ед,рд,ср,од,но"]) ?>	<?cs call:out_variants(Form["мн,рд,од,но"]) ?>
-д.	<?cs call:out_variants(Form["ед,дт,мр,од,но"]) ?>	<?cs call:out_variants(Form["ед,дт,жр,од,но"]) ?>	<?cs call:out_variants(Form["ед,дт,ср,од,но"]) ?>	<?cs call:out_variants(Form["мн,дт,од,но"]) ?>
-в.од.	<?cs call:out_variants(Form["ед,вн,мр,од"]) ?>	<?cs call:out_variants(Form["ед,вн,жр,од,но"]) ?>	<?cs call:out_variants(Form["ед,вн,ср,од,но"]) ?>	<?cs call:out_variants(Form["мн,вн,од"]) ?>
-в.но.	<?cs call:out_variants(Form["ед,вн,мр,но"]) ?>	<?cs call:out_variants(Form["ед,вн,жр,од,но"]) ?>	<?cs call:out_variants(Form["ед,вн,ср,од,но"]) ?>	<?cs call:out_variants(Form["мн,вн,но"]) ?>
-тв.	<?cs call:out_variants(Form["ед,тв,мр,од,но"]) ?>	<?cs call:out_variants(Form["ед,тв,жр,од,но"]) ?>	<?cs call:out_variants(Form["ед,тв,ср,од,но"]) ?>	<?cs call:out_variants(Form["мн,тв,од,но"]) ?>
-пр.	<?cs call:out_variants(Form["ед,пр,мр,од,но"]) ?>	<?cs call:out_variants(Form["ед,пр,жр,од,но"]) ?>	<?cs call:out_variants(Form["ед,пр,ср,од,но"]) ?>	<?cs call:out_variants(Form["мн,пр,од,но"]) ?>
+им.	<?cs call:out_variants(Form.positive.masculine.nominative)
+?>	<?cs call:out_variants(Form.positive.feminine.nominative)
+?>	<?cs call:out_variants(Form.positive.neuter.nominative)
+?>	<?cs call:out_variants(Form.positive.plural.nominative)
 
-кф	<?cs call:out_variants(Form["ед,мр,од,но"]) ?>	<?cs call:out_variants(Form["ед,жр,од,но"]) ?>	<?cs call:out_variants(Form["ед,ср,од,но"]) ?>	<?cs call:out_variants(Form["мн,од,но"]) ?>
+?>
+р.	<?cs call:out_variants(Form.positive.masculine.genitive)
+?>	<?cs call:out_variants(Form.positive.feminine.genitive)
+?>	<?cs call:out_variants(Form.positive.neuter.genitive)
+?>	<?cs call:out_variants(Form.positive.plural.genitive)
+
+?>
+д.	<?cs call:out_variants(Form.positive.masculine.dative)
+?>	<?cs call:out_variants(Form.positive.feminine.dative)
+?>	<?cs call:out_variants(Form.positive.neuter.dative)
+?>	<?cs call:out_variants(Form.positive.plural.dative)
+
+?>
+в.од.	<?cs call:out_variants(Form.positive.masculine.accusative.animate)
+?>	<?cs call:out_variants(Form.positive.feminine.accusative)
+?>	<?cs call:out_variants(Form.positive.neuter.accusative)
+?>	<?cs call:out_variants(Form.positive.plural.accusative.animate)
+
+?>
+в.но.	<?cs call:out_variants(Form.positive.masculine.accusative.inanimate)
+?>	<?cs call:out_variants(Form.positive.feminine.accusative)
+?>	<?cs call:out_variants(Form.positive.neuter.accusative)
+?>	<?cs call:out_variants(Form.positive.plural.accusative.inanimate)
+
+?>
+тв.	<?cs call:out_variants(Form.positive.masculine.instrumental)
+?>	<?cs call:out_variants(Form.positive.feminine.instrumental)
+?>	<?cs call:out_variants(Form.positive.neuter.instrumental)
+?>	<?cs call:out_variants(Form.positive.plural.instrumental)
+
+?>
+пр.	<?cs call:out_variants(Form.positive.masculine.prepositional)
+?>	<?cs call:out_variants(Form.positive.feminine.prepositional)
+?>	<?cs call:out_variants(Form.positive.neuter.prepositional)
+?>	<?cs call:out_variants(Form.positive.plural.prepositional)
+?>
+
+кф	<?cs call:out_variants(Form.positive.short.masculine)
+?>	<?cs call:out_variants(Form.positive.short.feminine)
+?>	<?cs call:out_variants(Form.positive.short.neuter)
+?>	<?cs call:out_variants(Form.positive.short.plural)
+?>
 
 превосходная степень
 	мр		жр		ср		мн
-им.	<?cs call:out_variants(Form["ед,им,мр,од,но,прев"]) ?>	<?cs call:out_variants(Form["ед,им,жр,од,но,прев"]) ?>	<?cs call:out_variants(Form["ед,им,ср,од,но,прев"]) ?>	<?cs call:out_variants(Form["мн,им,од,но,прев"]) ?>
-р.	<?cs call:out_variants(Form["ед,рд,мр,од,но,прев"]) ?>	<?cs call:out_variants(Form["ед,рд,жр,од,но,прев"]) ?>	<?cs call:out_variants(Form["ед,рд,ср,од,но,прев"]) ?>	<?cs call:out_variants(Form["мн,рд,од,но,прев"]) ?>
-д.	<?cs call:out_variants(Form["ед,дт,мр,од,но,прев"]) ?>	<?cs call:out_variants(Form["ед,дт,жр,од,но,прев"]) ?>	<?cs call:out_variants(Form["ед,дт,ср,од,но,прев"]) ?>	<?cs call:out_variants(Form["мн,дт,од,но,прев"]) ?>
-в.од.	<?cs call:out_variants(Form["ед,вн,мр,од,прев"]) ?>	<?cs call:out_variants(Form["ед,вн,жр,од,но,прев"]) ?>	<?cs call:out_variants(Form["ед,вн,ср,од,но,прев"]) ?>	<?cs call:out_variants(Form["мн,вн,од,прев"]) ?>
-в.но.	<?cs call:out_variants(Form["ед,вн,мр,но,прев"]) ?>	<?cs call:out_variants(Form["ед,вн,жр,од,но,прев"]) ?>	<?cs call:out_variants(Form["ед,вн,ср,од,но,прев"]) ?>	<?cs call:out_variants(Form["мн,вн,но,прев"]) ?>
-тв.	<?cs call:out_variants(Form["ед,тв,мр,од,но,прев"]) ?>	<?cs call:out_variants(Form["ед,тв,жр,од,но,прев"]) ?>	<?cs call:out_variants(Form["ед,тв,ср,од,но,прев"]) ?>	<?cs call:out_variants(Form["мн,тв,од,но,прев"]) ?>
-пр.	<?cs call:out_variants(Form["ед,пр,мр,од,но,прев"]) ?>	<?cs call:out_variants(Form["ед,пр,жр,од,но,прев"]) ?>	<?cs call:out_variants(Form["ед,пр,ср,од,но,прев"]) ?>	<?cs call:out_variants(Form["мн,пр,од,но,прев"]) ?>
+им.	<?cs call:out_variants(Form.superlative.masculine.nominative)
+?>	<?cs call:out_variants(Form.superlative.feminine.nominative)
+?>	<?cs call:out_variants(Form.superlative.neuter.nominative)
+?>	<?cs call:out_variants(Form.superlative.plural.nominative)
 
-сравн.	<?cs call:out_variants(Form["од,но,сравн"]) ?>
-сравн.	<?cs call:out_variants(Form["од,но,сравн,2"]) ?>
+?>
+р.	<?cs call:out_variants(Form.superlative.masculine.genitive)
+?>	<?cs call:out_variants(Form.superlative.feminine.genitive)
+?>	<?cs call:out_variants(Form.superlative.neuter.genitive)
+?>	<?cs call:out_variants(Form.superlative.plural.genitive)
+
+?>
+д.	<?cs call:out_variants(Form.superlative.masculine.dative)
+?>	<?cs call:out_variants(Form.superlative.feminine.dative)
+?>	<?cs call:out_variants(Form.superlative.neuter.dative)
+?>	<?cs call:out_variants(Form.superlative.plural.dative)
+
+?>
+в.од.	<?cs call:out_variants(Form.superlative.masculine.accusative.animate)
+?>	<?cs call:out_variants(Form.superlative.feminine.accusative)
+?>	<?cs call:out_variants(Form.superlative.neuter.accusative)
+?>	<?cs call:out_variants(Form.superlative.plural.accusative.animate)
+
+?>
+в.но.	<?cs call:out_variants(Form.superlative.masculine.accusative.inanimate)
+?>	<?cs call:out_variants(Form.superlative.feminine.accusative)
+?>	<?cs call:out_variants(Form.superlative.neuter.accusative)
+?>	<?cs call:out_variants(Form.superlative.plural.accusative.inanimate)
+
+?>
+тв.	<?cs call:out_variants(Form.superlative.masculine.instrumental)
+?>	<?cs call:out_variants(Form.superlative.feminine.instrumental)
+?>	<?cs call:out_variants(Form.superlative.neuter.instrumental)
+?>	<?cs call:out_variants(Form.superlative.plural.instrumental)
+
+?>
+пр.	<?cs call:out_variants(Form.superlative.masculine.prepositional)
+?>	<?cs call:out_variants(Form.superlative.feminine.prepositional)
+?>	<?cs call:out_variants(Form.superlative.neuter.prepositional)
+?>	<?cs call:out_variants(Form.superlative.plural.prepositional)
+?>
+
+сравн.	<?cs call:out_variants(Form.comparative.primary) ?>
+сравн.	<?cs call:out_variants(Form.comparative.secondary) ?>

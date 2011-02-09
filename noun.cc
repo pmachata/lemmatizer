@@ -1,12 +1,13 @@
 #include "noun.hh"
 #include "forms.hh"
 #include "rus_gramtab.hh"
+#include "format.hh"
 
 #include <boost/format.hpp>
 
 namespace
 {
-  int
+  gram_code_t
   get_gender (lemmatize::forms::const_iterator form)
   {
     gramcodes ac = form.ancode ();
@@ -43,7 +44,7 @@ namespace
     if (!is_masculine && !is_feminine && is_neuter)
       return gm_neuter;
 
-    return -1;
+    return gm__invalid;
   }
 }
 
@@ -57,15 +58,11 @@ noun_handler::fill_hdf (CAgramtab *agramtab,
 			hdf_data_map &data) const
 {
   lemmatize::forms forms = it.forms ();
-  int gender = get_gender (forms.begin ());
-  if (gender == -1)
+  gram_code_t gender = get_gender (forms.begin ());
+  if (gender == gm__invalid)
     throw std::runtime_error ("Can't determine gender.");
 
-  char const *word = gender == gm_masculine ? "masculine"
-    : gender == gm_feminine ? "feminine"
-    : gender == gm_neuter ? "neuter"
-    : gender == gm_masc_femin ? "masculine/feminine"
-    : FAIL (char const *);
+  char const *word = format_rus_grammeme_value (gender);
   data["gender"].push_back (std::make_pair (word, -1));
 
   for (lemmatize::forms::const_iterator ft = forms.begin ();
@@ -73,47 +70,25 @@ noun_handler::fill_hdf (CAgramtab *agramtab,
     {
       gramcodes ac = ft.ancode ();
 
-      int gnumber = -1;
-      int gcase = -1;
+      gram_code_t gnumber = gm__invalid;
+      gram_code_t gcase = gm__invalid;
       std::vector<grammeme> grammemes = ac.grammemes ();
       for (std::vector<grammeme>::const_iterator gt = grammemes.begin ();
 	   gt != grammemes.end (); ++gt)
-	switch (gt->value ())
-	  {
-	  case gm_plural:
-	  case gm_singular:
-	    gnumber = gt->value ();
-	    continue;
-
-	  case gm_nominative:
-	  case gm_genitive:
-	  case gm_dative:
-	  case gm_accusative:
-	  case gm_instrumental:
-	  case gm_prepositional:
-	  case gm_vocative:
-	    gcase = gt->value ();
-	    continue;
-	  }
+	{
+	  gram_code_t code = gt->value_as<gram_code_t> ();
+	  extract_rus_number (gnumber, code);
+	  extract_rus_case (gcase, code);
+	}
 
       if (gnumber == -1)
 	throw std::runtime_error ("Can't determine number.");
       if (gcase == -1)
 	throw std::runtime_error ("Can't determine case.");
 
-      std::string field
-	= str (boost::format ("%s.%s")
-	       % (gnumber == gm_singular ? "singular"
-		  : gnumber == gm_plural ? "plural"
-		  : FAIL (char const *))
-	       % (gcase == gm_nominative ? "nominative"
-		  : gcase == gm_genitive ? "genitive"
-		  : gcase == gm_dative ? "dative"
-		  : gcase == gm_accusative ? "accusative"
-		  : gcase == gm_instrumental ? "instrumental"
-		  : gcase == gm_prepositional ? "prepositional"
-		  : gcase == gm_vocative ? "vocative"
-		  : FAIL (char const *)));
+      std::string field = str (boost::format ("%s.%s")
+			       % format_rus_grammeme_value (gnumber)
+			       % format_rus_grammeme_value (gcase));
 
       data[field].push_back (std::make_pair (*ft, ft.accent ()));
     }

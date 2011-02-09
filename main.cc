@@ -19,6 +19,7 @@
 #include "rus_gramtab.hh"
 #include "pos_handler.hh"
 #include "noun.hh"
+#include "adjective.hh"
 
 void
 fail (std::string const &reason)
@@ -168,16 +169,6 @@ public:
   }
 };
 
-class adjective_handler
-  : public pos_handler
-{
-public:
-  adjective_handler ()
-    : pos_handler ("adjective")
-  {}
-};
-
-
 class verb_handler
   : public pos_handler
 {
@@ -193,9 +184,17 @@ class pos_handler_map
 public:
   pos_handler_map ()
   {
-    insert (std::make_pair ((int)pos_noun, new noun_handler ()));
-    insert (std::make_pair ((int)pos_verb, new verb_handler ()));
-    insert (std::make_pair ((int)pos_adjective, new adjective_handler ()));
+    insert (std::make_pair ((int)pos_noun,
+			    new noun_handler ()));
+
+    insert (std::make_pair ((int)pos_verb,
+			    new verb_handler ()));
+
+    insert (std::make_pair ((int)pos_adjective,
+			    new adjective_handler ()));
+
+    insert (std::make_pair ((int)pos_short_adjective,
+			    new short_adjective_handler ()));
   }
 
   ~pos_handler_map ()

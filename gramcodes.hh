@@ -20,6 +20,13 @@ public:
 
   char const *c_str () const;
   size_t value () const;
+
+  // You would call this with T being an enum implementing values for
+  // language of your choice.
+  template<class T> T value_as () const
+  {
+    return static_cast<T> (value ());
+  }
 };
 
 class gramcodes

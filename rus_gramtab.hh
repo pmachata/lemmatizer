@@ -1,4 +1,7 @@
-enum
+#ifndef RUS_GRAMTAB_HH
+#define RUS_GRAMTAB_HH
+
+enum pos_code_t
   {
     pos_noun = 0,
     pos_adjective = 1,
@@ -24,8 +27,9 @@ enum
     pos_infinitive = 21,
   };
 
-enum
+enum gram_code_t
   {
+    gm__invalid = -1,
     gm_plural = 0,
     gm_singular = 1,
     gm_nominative = 2,
@@ -78,3 +82,12 @@ enum
     gm_superlative = 49, //"прев"
     gm_positive = 50, //"полож"
   };
+
+// If CODE has information about number, store it in ret and return
+// true.  If not, leave it intact and return false.
+bool extract_rus_number (gram_code_t &ret, gram_code_t code);
+bool extract_rus_case (gram_code_t &ret, gram_code_t code);
+bool extract_rus_gender (gram_code_t &ret, gram_code_t code);
+bool extract_rus_adj_degree (gram_code_t &ret, gram_code_t code);
+
+#endif//RUS_GRAMTAB_HH

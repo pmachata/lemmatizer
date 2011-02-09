@@ -31,6 +31,15 @@ public:
 			 hdf_data_map &data) const;
 };
 
+template<int Delegate>
+struct delegating_pos_handler
+  : public pos_handler
+{
+  delegating_pos_handler()
+    : pos_handler (Delegate)
+  {}
+};
+
 #define FAIL(T) (assert (false), (T)NULL)
 
 #endif//POS_HANDLER_HH
