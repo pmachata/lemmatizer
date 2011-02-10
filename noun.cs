@@ -1,10 +1,55 @@
-<?cs include:"header.cs" ?>== существительное ==
-род:	<?cs call:out_variants(Form.gender) ?>
+<?cs
+include:"header.cs" ?><?cs
+include:"html.cs" ?><?cs
 
-	ед	мн
-им.	<?cs call:out_variants(Form.singular.nominative) ?>	<?cs call:out_variants(Form.plural.nominative) ?>
-р.	<?cs call:out_variants(Form.singular.genitive) ?>	<?cs call:out_variants(Form.plural.genitive) ?>
-д.	<?cs call:out_variants(Form.singular.dative) ?>	<?cs call:out_variants(Form.plural.dative) ?>
-в.	<?cs call:out_variants(Form.singular.accusative) ?>	<?cs call:out_variants(Form.plural.accusative) ?>
-тв.	<?cs call:out_variants(Form.singular.instrumental) ?>	<?cs call:out_variants(Form.plural.instrumental) ?>
-пр.	<?cs call:out_variants(Form.singular.prepositional) ?>	<?cs call:out_variants(Form.plural.prepositional) ?>
+call:begin_html(Form.singular.nominative.0) ?>
+
+<h1>Существительное: <?cs var:Form.singular.nominative.0 ?></h1>
+
+<h2>Свойства</h2>
+
+<table>
+<thead>
+<tr><td>род</td></tr>
+</thead>
+<tbody>
+<tr><td><?cs call:out_variants(Form.gender) ?></td></tr>
+</tbody>
+</table>
+
+<h2>Таблица склонений</h2>
+
+<table>
+<thead>
+<tr><td>&nbsp;</td><td>ед</td><td>мн</td></tr>
+</thead>
+
+<tbody>
+<tr><td>им.</td>
+    <td><?cs call:html_variants(Form.singular.nominative) ?></td>
+    <td><?cs call:html_variants(Form.plural.nominative) ?></td></tr>
+
+<tr><td>р.</td>
+    <td><?cs call:html_variants(Form.singular.genitive) ?></td>
+    <td><?cs call:html_variants(Form.plural.genitive) ?></td></tr>
+
+<tr><td>д.</td>
+    <td><?cs call:html_variants(Form.singular.dative) ?></td>
+    <td><?cs call:html_variants(Form.plural.dative) ?></td></tr>
+
+<tr><td>в.</td>
+    <td><?cs call:html_variants(Form.singular.accusative) ?></td>
+    <td><?cs call:html_variants(Form.plural.accusative) ?></td></tr>
+
+<tr><td>тв.</td>
+    <td><?cs call:html_variants(Form.singular.instrumental) ?></td>
+    <td><?cs call:html_variants(Form.plural.instrumental) ?></td></tr>
+
+<tr><td>пр.</td>
+    <td><?cs call:html_variants(Form.singular.prepositional) ?></td>
+    <td><?cs call:html_variants(Form.plural.prepositional) ?></td></tr>
+</tbody>
+
+</table><?cs
+
+call:end_html() ?>

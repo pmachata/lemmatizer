@@ -1,4 +1,6 @@
 #include "fcgi_backend.hh"
+#include "url_decode.hh"
+
 #include <fcgi_stdio.h>
 #include <cstring>
 #include <sstream>
@@ -18,7 +20,7 @@ fcgi_backend::get_word (std::string &word)
     if (strncmp (*it, QS, sizeof (QS) - 1) == 0)
       {
 	word = *it + sizeof (QS) - 1;
-	word = "\xd0\xb7\xd0\xb0\xd0\xb2\xd1\x82\xd1\x80\xd0\xb0";
+	url_decode (word);
 	return true;
       }
 

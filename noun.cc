@@ -59,10 +59,8 @@ noun_handler::fill_hdf (CAgramtab *agramtab,
 {
   lemmatize::forms forms = it.forms ();
   gram_code_t gender = get_gender (forms.begin ());
-  if (gender == gm__invalid)
-    throw std::runtime_error ("Can't determine gender.");
-
-  char const *word = format_rus (gender);
+  char const *word = gender != gm__invalid
+    ? format_rus (gender) : "unknown";
   data["gender"].push_back (std::make_pair (word, -1));
 
   for (lemmatize::forms::const_iterator ft = forms.begin ();
