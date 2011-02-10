@@ -17,49 +17,14 @@
 #include "lemmatize.hh"
 #include "part_of_speech.hh"
 #include "pos_handler.hh"
-#include "renderer.hh"
+#include "backend.hh"
+#include "fcgi_backend.hh"
 #include "rus_gramtab.hh"
 
 void
 fail (std::string const &reason)
 {
   throw std::runtime_error (reason + ": " + std::strerror (errno) + ".");
-}
-
-// Convert multi-byte string to wide string.
-std::wstring
-to_w (std::string s)
-{
-  wchar_t buf[s.length () + 1];
-  char const *src = s.c_str ();
-  size_t len = mbsrtowcs(buf, &src, s.length (), NULL);
-  if (len == (size_t)-1)
-    fail ("mbsrtowcs");
-  buf[len] = 0;
-  return buf;
-}
-
-// Convert wide string to multi-byte string.
-std::string
-to_mb (std::wstring s)
-{
-  // ask how much we need
-  wchar_t const *src = s.c_str ();
-  size_t len = wcstombs(NULL, src, 0);
-  if (len == (size_t)-1)
-    fail ("wcstombs");
-
-  char buf[len + 1];
-  wcstombs(buf, src, len);
-  buf[len] = 0;
-  return buf;
-}
-
-// Convert wide string to lower-case.
-void
-to_lower (std::wstring &word)
-{
-  std::transform (word.begin (), word.end (), word.begin (), towlower);
 }
 
 // iconv convenience wrapper.
@@ -171,7 +136,8 @@ public:
 // Use this character as an accent mark.  This must be a wchar_t
 // constant.  In non-unicode environment, this should be set to L"'"
 // or some such.
-#define ACCENT_MARK L"\u0301"
+//#define ACCENT_MARK L"\u0301"
+#define ACCENT_MARK "\xcc\x81" // this is UTF-8
 
 class lemmatizer_app
 {
@@ -181,6 +147,7 @@ class lemmatizer_app
   iconv_t _m_iconv_from;
   pos_handler_map _m_handlers;
   template_cache _m_templates;
+  default_hdf _m_hdf;
 
   template <class T>
   T check (T retval, std::string const &reason)
@@ -194,10 +161,15 @@ public:
   lemmatizer_app ()
     : _m_lemmatizer (new CLemmatizerRussian ())
     , _m_agramtab (new CRusGramTab ())
-      // local -> windows-1251
-    , _m_iconv_to (check (iconv_open ("windows-1251", ""), "iconv_open to"))
-      // local <- windows-1251
-    , _m_iconv_from (check (iconv_open ("", "windows-1251"), "iconv_open from"))
+
+      // Just assume utf-8.  That's ubiquitous on Linuxes and
+      // apparently encoding URLs in utf-8 is standard, too.
+
+    , _m_iconv_to (check (iconv_open ("windows-1251", "utf-8"),
+			  "iconv_open to"))
+
+    , _m_iconv_from (check (iconv_open ("utf-8", "windows-1251"),
+			    "iconv_open from"))
   {
     string err;
     if (!_m_lemmatizer->LoadDictionariesRegistry(err))
@@ -220,28 +192,24 @@ public:
   // passed, put accent mark where it should be.
   std::string show (std::string const &w, int accent = -1)
   {
-    std::string mbw = convert (w, _m_iconv_from);
-    std::wstring ww = to_w (mbw);
-    to_lower (ww);
-    if (accent != -1)
-      ww = ww.substr (0, accent + 1) + ACCENT_MARK + ww.substr (accent + 1);
-    mbw = to_mb (ww);
-    return mbw;
+    if (accent == -1)
+      return convert (w, _m_iconv_from);
+
+    std::string s = convert (w.substr (0, accent + 1), _m_iconv_from);
+    s += ACCENT_MARK;
+    s += convert (w.substr (accent + 1), _m_iconv_from);
+
+    // XXX here we would really like to convert the string to lower case
+    return s;
   }
 
   void
-  process (std::string const &line, renderer *ren)
+  process (std::string const &line, backend *back)
   {
-    std::cout << "convert:  " << line << std::endl;
-
     lemmatize lem (convert (line, _m_iconv_to), _m_lemmatizer, _m_agramtab);
     for (lemmatize::const_iterator it = lem.begin ();
 	 it != lem.end (); ++it)
       {
-	std::cout << "found:    " << (it.found () ? "yes" : "no")
-		  << " (id " << std::hex << it->GetParadigmId () << std::dec << ")" << std::endl;
-	std::cout << "src norm: " << show (it->GetSrcNorm ()) << std::endl;
-
 	part_of_speech pos = it.get_part_of_speech ();
 	lemmatize::forms forms = it.forms ();
 
@@ -249,24 +217,22 @@ public:
 	  = _m_handlers.get_handler (pos.number ());
 	if (handler == NULL)
 	  {
-	    std::cout << "No handler for part of speech \""
+	    std::cerr << "No handler for part of speech \""
 		      << show (pos.name ()) << "\" ("
 		      << pos.number () << ")." << std::endl;
 	    continue;
 	  }
-
-	default_hdf hdf;
 
 	CSPARSE *tmpl = _m_templates.get (pos.number ());
 	if (tmpl == NULL)
 	  {
 	    std::string file_name = handler->template_name ();
 	    file_name += ".cs";
-	    tmpl = _m_templates.add (hdf, pos.number (),
+	    tmpl = _m_templates.add (_m_hdf, pos.number (),
 				     file_name.c_str ());
 	    if (tmpl == NULL)
 	      {
-		std::cout << "Couldn't load the template \""
+		std::cerr << "Couldn't load the template \""
 			  << file_name << "\"." << std::endl;
 		continue;
 	      }
@@ -281,7 +247,7 @@ public:
 	  {
 	    std::string name = std::string ("Form.") + it->first;
 	    HDF *node;
-	    handle_neoerr (hdf_get_node (hdf, name.c_str (), &node));
+	    handle_neoerr (hdf_get_node (_m_hdf, name.c_str (), &node));
 	    for (size_t i = 0; i < it->second.size (); ++i)
 	      {
 		std::string const &word = it->second[i].first;
@@ -292,48 +258,58 @@ public:
 	      }
 	  }
 
-	handle_neoerr (hdf_dump (hdf, ">"));
+	//handle_neoerr (hdf_dump (hdf, ">"));
 
 	struct _ {
 	  static NEOERR *render_cb (void *data, char *str)
 	  {
-	    renderer *r = (renderer *)data;
-	    return r->render (str);
+	    backend *b = (backend *)data;
+	    bool result = b->render (str);
+
+	    if (result)
+	      return NULL;
+	    else
+	      return nerr_raise (NERR_PARSE, "Backend render failed.");
 	  }
 	};
-	handle_neoerr (cs_render (tmpl, ren, &_::render_cb));
+
+	handle_neoerr (cs_render (tmpl, back, &_::render_cb));
+	handle_neoerr (hdf_remove_tree (_m_hdf, "Form"));
       }
+  }
+
+  int
+  loop (backend *back)
+  {
+    std::string line;
+    while (back->get_word (line))
+      {
+	back->before_render ();
+	Trim (line);
+	if (line.empty ())
+	  continue;
+
+	// XXX here we would perhaps like to convert the string to
+	// lower case.
+
+	process (line, back);
+	back->after_render ();
+      }
+    return 0;
   }
 
   int
   run ()
   {
-    stream_renderer cout_renderer (std::cout);
-
-    while (true)
-      {
-	std::string line;
-	std::getline (std::cin, line);
-	Trim (line);
-	if (line.empty () || std::cin.eof ())
-	  break;
-
-	std::wstring wline = to_w (line);
-	to_lower (wline);
-	line = to_mb (wline);
-
-	process (line, &cout_renderer);
-      }
-    return 0;
+    console_backend back (std::cin, std::cout);
+    return loop (&back);
   }
 
   int
   fcgi_run ()
   {
-    fcgi_renderer renderer;
-    std::cout << "Content-type: text/html\n\n";
-    process ("", &renderer);
-    return 0;
+    fcgi_backend back;
+    return loop (&back);
   }
 };
 
@@ -341,10 +317,16 @@ int main(int argc, char **argv)
   try
     {
       setlocale (LC_ALL, "");
-      return lemmatizer_app ().run ();
+      std::cerr << "LC_ALL=" << setlocale (LC_ALL, NULL) << std::endl;
+      return lemmatizer_app ().fcgi_run ();
     }
   catch (CExpc const &exc)
     {
       std::cerr << "seman exception: " << exc.m_strCause << std::endl;
+      return 1;
+    }
+  catch (std::runtime_error const &err)
+    {
+      std::cerr << "runtime error: " << err.what () << std::endl;
       return 1;
     }
