@@ -42,16 +42,14 @@ pos_handler_map::pos_handler_map ()
   insert (std::make_pair ((int)pos_noun,
 			  new noun_handler ()));
 
-  insert (std::make_pair ((int)pos_verb,
-			  new verb_handler ()));
+  pos_handler const *verb = new verb_handler ();
+  insert (std::make_pair ((int)pos_verb, verb));
+  insert (std::make_pair ((int)pos_infinitive, verb));
 
-  insert (std::make_pair ((int)pos_adjective,
-			  new adjective_handler ()));
+  pos_handler const *adj = new verb_handler ();
+  insert (std::make_pair ((int)pos_adjective, adj));
+  insert (std::make_pair ((int)pos_short_adjective, adj));
 
-  insert (std::make_pair ((int)pos_short_adjective,
-			  new short_adjective_handler ()));
-
-  // We can share handlers.
   pos_handler const *simple = new simple_handler ();
   insert (std::make_pair ((int)pos_adverb, simple));
   insert (std::make_pair ((int)pos_interjection, simple));

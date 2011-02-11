@@ -8,6 +8,9 @@ class verb_handler
 {
 public:
   verb_handler ();
+  virtual void fill_hdf (CAgramtab *agramtab,
+			 lemmatize::const_iterator const &it,
+			 hdf_data_map &data) const;
 };
 
 #endif//VERB_HH
