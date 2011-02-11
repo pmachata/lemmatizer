@@ -195,6 +195,9 @@ public:
 	hdf_data_map data;
 	handler->fill_hdf (_m_agramtab, it, data);
 
+	handle_neoerr (hdf_set_valuef (_m_hdf, "Form.found=%d",
+				       (int)it.found ()));
+
 	data["pos"].push_back
 	  (std::make_pair (format_rus (pos.number_as<pos_code_t> ()), -1));
 

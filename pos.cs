@@ -11,7 +11,9 @@
   if val == "transition_word" ?>Вводное слово<?cs else ?><?cs
   if val == "particle" ?>Частица<?cs else ?><?cs
   if val == "conjunction" ?>Союз<?cs else ?><?cs
+  if val == "pronoun" ?>Местоимение<?cs else ?><?cs
   if val == "verb" ?>Глагол<?cs else ?><?cs var:val ?><?cs
+  /if ?><?cs
   /if ?><?cs
   /if ?><?cs
   /if ?><?cs

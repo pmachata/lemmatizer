@@ -39,14 +39,17 @@ pos_handler::fill_hdf (CAgramtab *agramtab,
 
 pos_handler_map::pos_handler_map ()
 {
-  insert (std::make_pair ((int)pos_noun,
-			  new noun_handler ()));
+  pos_handler const *noun = new noun_handler ();
+  insert (std::make_pair ((int)pos_noun, noun));
+  insert (std::make_pair ((int)pos_pronoun, noun));
 
   pos_handler const *verb = new verb_handler ();
   insert (std::make_pair ((int)pos_verb, verb));
   insert (std::make_pair ((int)pos_infinitive, verb));
+  insert (std::make_pair ((int)pos_adj_participle, verb));
+  insert (std::make_pair ((int)pos_adv_participle, verb));
 
-  pos_handler const *adj = new verb_handler ();
+  pos_handler const *adj = new adjective_handler ();
   insert (std::make_pair ((int)pos_adjective, adj));
   insert (std::make_pair ((int)pos_short_adjective, adj));
 

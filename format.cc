@@ -22,8 +22,17 @@ format_rus (pos_code_t val)
       return "particle";
     case pos_conjunction:
       return "conjunction";
+    case pos_pronoun:
+      return "pronoun";
+    case pos_short_adjective:
+      return "short_adjective";
+    case pos_infinitive:
+      return "infinitive";
+    case pos_adv_participle:
+      return "adv_participle";
+    case pos_adj_participle:
+      return "adj_participle";
 
-    case pos_3:
     case pos_4:
     case pos_5:
     case pos_6:
@@ -32,11 +41,7 @@ format_rus (pos_code_t val)
     case pos_10:
     case pos_11:
     case pos_15:
-    case pos_short_adjective:
-    case pos_adj_participle:
-    case pos_adv_participle:
     case pos_short_participle:
-    case pos_infinitive:
     case pos__invalid:
       break;
   };

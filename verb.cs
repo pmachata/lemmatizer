@@ -9,12 +9,8 @@ call:begin_html(Form.infinitive.0) ?>
 <h2>Свойства</h2>
 
 <table>
-<thead>
-<tr><td>xxx</td></tr>
-</thead>
-<tbody>
-<tr><td>yyy</td></tr>
-</tbody>
+<tr><td>found</td><td><?cs if:Form.found ?>yes<?cs else ?>no<?cs /if ?></td></tr>
+<tr><td>инфинитив</td><td><?cs call:out_variants(Form.infinitive) ?></td></tr>
 </table><?cs
 
 if:subcount(Form.future) ?>

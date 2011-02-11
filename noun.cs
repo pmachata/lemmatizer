@@ -1,20 +1,20 @@
 <?cs
 include:"header.cs" ?><?cs
 include:"html.cs" ?><?cs
+include:"pos.cs" ?><?cs
 
 call:begin_html(Form.singular.nominative.0) ?>
 
-<h1>Существительное: <?cs var:Form.singular.nominative.0 ?></h1>
+<h1><?cs call:pos_russian(Form.pos.0) ?>: <?cs
+alt:Form.singular.nominative.0 ?><?cs
+  var:Form.plural.nominative.0 ?><?cs
+/alt ?></h1>
 
 <h2>Свойства</h2>
 
 <table>
-<thead>
-<tr><td>род</td></tr>
-</thead>
-<tbody>
-<tr><td><?cs call:out_variants(Form.gender) ?></td></tr>
-</tbody>
+<tr><td>found</td><td><?cs if:Form.found ?>yes<?cs else ?>no<?cs /if ?></td></tr>
+<?cs if:subcount(Form.gender) ?><tr><td>род</td><td><?cs call:out_variants(Form.gender) ?></td></tr><?cs /if ?>
 </table>
 
 <h2>Таблица склонений</h2>
