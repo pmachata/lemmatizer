@@ -22,24 +22,12 @@
 
 pos_handler::pos_handler (char const *name)
   : _m_name (name)
-  , _m_delegate (-1)
-{}
-
-pos_handler::pos_handler (int delegate)
-  : _m_name (NULL)
-  , _m_delegate (delegate)
 {}
 
 char const *
 pos_handler::template_name () const
 {
   return _m_name;
-}
-
-int
-pos_handler::delegate () const
-{
-  return _m_delegate;
 }
 
 void
@@ -94,33 +82,11 @@ pos_handler_map::~pos_handler_map ()
 pos_handler const *
 pos_handler_map::get_handler (int pos)
 {
-  int orig_pos = pos;
-  int delegated_pos;
   pos_handler const *handler = NULL;
-  while (true)
-    {
-      const_iterator it = find (pos);
-      if (it == end ())
-	return NULL;
-      handler = it->second;
-      delegated_pos = pos;
-      pos = handler->delegate ();
-      if (pos == -1)
-	break;
-
-      // Guard against infinite cycle.
-      if (pos == orig_pos)
-	return NULL;
-    }
-  assert (handler != NULL);
-
-  // Update the cache so that we don't have to go through delegation
-  // loops next time around.
-  if (delegated_pos != orig_pos)
-    {
-      delete (*this)[orig_pos];
-      (*this)[orig_pos] = handler;
-    }
+  const_iterator it = find (pos);
+  if (it == end ())
+    return NULL;
+  handler = it->second;
 
   return handler;
 }

@@ -33,29 +33,15 @@ typedef std::map<std::string,
 class pos_handler
 {
   char const *_m_name;
-  int _m_delegate;
 
 public:
   explicit pos_handler (char const *name);
-  explicit pos_handler (int delegate);
 
   char const *template_name () const;
-
-  // XXX get rid of this.  It's useless now that we can share handlers
-  int delegate () const;
 
   virtual void fill_hdf (CAgramtab *agramtab,
 			 lemmatize::const_iterator const &it,
 			 hdf_data_map &data) const;
-};
-
-template<int Delegate>
-struct delegating_pos_handler
-  : public pos_handler
-{
-  delegating_pos_handler()
-    : pos_handler (Delegate)
-  {}
 };
 
 class pos_handler_map

@@ -35,9 +35,4 @@ public:
 				      bool secondary);
 };
 
-class short_adjective_handler
-  : public delegating_pos_handler<pos_adjective>
-{
-};
-
 #endif//ADJECTIVE_HH
