@@ -1,20 +1,14 @@
-#include <algorithm>
-#include <cerrno>
 #include <cstring>
 #include <iconv.h>
 #include <iostream>
 #include <stdexcept>
-#include <sstream>
 
 #include <AgramtabLib/RusGramTab.h>
 
 #include <cs/cs.h>
-#include <util/neo_files.h>
 #include <boost/filesystem.hpp>
 
-#include "config.hh"
 #include "forms.hh"
-#include "gramcodes.hh"
 #include "lemmatize.hh"
 #include "part_of_speech.hh"
 #include "pos_handler.hh"
