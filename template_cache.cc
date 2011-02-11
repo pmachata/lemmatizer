@@ -16,15 +16,16 @@
 
 #include "template_cache.hh"
 
+#include <boost/format.hpp>
 #include <cassert>
 #include <cerrno>
 #include <cstring>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <sys/inotify.h>
 #include <unistd.h>
-#include <boost/format.hpp>
 
 void
 handle_neoerr (NEOERR *err)
@@ -42,6 +43,7 @@ handle_neoerr (NEOERR *err)
 
 template_cache::template_cache ()
   : _m_inotify_fd (inotify_init1 (IN_CLOEXEC | IN_NONBLOCK))
+  , _m_collision_free (-1)
 {
   // Warn, but keep running.  We won't be able to check for updates to
   // templates, but otherwise it will keep working.
@@ -90,10 +92,40 @@ template_cache::add (HDF *hdf, int id, char const *template_name)
 	  // descriptors than template IDs.
 	  assert (wd2 < 2 * size () || wd2 < 100);
 	  if (wd2 >= _m_wd_to_id.size ())
-	    _m_wd_to_id.resize (wd2 + 1, -1);
-	  _m_wd_to_id[wd] = id;
+	    _m_wd_to_id.resize (wd2 + 1);
+
 	  std::cerr << (boost::format ("Inotify: watching %s (%d, wd=%d).\n")
 			% path % id % wd);
+
+	  // If this slot is already used, it means that the template
+	  // is used under more than one ID.
+	  if (_m_wd_to_id[wd].id == -1)
+	    _m_wd_to_id[wd].id = id;
+	  else
+	    {
+	      // Find first free collision node.
+	      if (_m_collision_free == -1)
+		{
+		  _m_collision.push_back (wd_to_id_s ());
+		  _m_collision_free = _m_collision.size () - 1;
+		}
+	      ssize_t slot_n = _m_collision_free;
+	      wd_to_id_s &slot = _m_collision[slot_n];
+	      assert (slot.id == -1);
+	      _m_collision_free = slot.next;
+
+	      slot.next = _m_wd_to_id[wd].next;
+	      _m_wd_to_id[wd].next = slot_n;
+	      slot.id = id;
+	    }
+
+	  std::ostringstream os;
+	  os << _m_wd_to_id[wd].id;
+	  for (ssize_t i = _m_wd_to_id[wd].next; i != -1;
+	       i = _m_collision[i].next)
+	    os << boost::format (",(%d)%d") % i % _m_collision[i].id;
+	  std::cerr << boost::format ("wd=%d now refers to templates %s\n")
+	    % wd % os.str ();
 	}
     }
 
@@ -104,6 +136,23 @@ template_cache::add (HDF *hdf, int id, char const *template_name)
 
   return get (id);
 }
+
+ssize_t
+template_cache::release (wd_to_id_s &slot, ssize_t next)
+{
+  std::cerr << (boost::format ("Drop template #%d from cache.\n")
+		% slot.id);
+  CSPARSE *tmpl = (*this)[slot.id];
+  cs_destroy (&tmpl);
+  (*this)[slot.id] = NULL;
+
+  // We use IN_ONESHOT, so this wd is not valid anymore.
+  slot.id = -1;
+  ssize_t ret = slot.next;
+  slot.next = next;
+  return ret;
+}
+
 
 CSPARSE *
 template_cache::get (int id)
@@ -135,20 +184,29 @@ template_cache::get (int id)
 	if (evt.wd < 0 || (size_t)evt.wd >= _m_wd_to_id.size ())
 	  std::cerr << boost::format ("Inotify: strange wd=%d.\n") % evt.wd;
 
-	int changed_id = _m_wd_to_id[evt.wd];
+	int changed_id = _m_wd_to_id[evt.wd].id;
 	if (changed_id < 0)
-	  // This must be a second change of a file that we already
-	  // invalidated.
-	  continue;
+	  {
+	    // This must be a second change of a file that we already
+	    // invalidated.
+	    std::cerr << (boost::format ("File #%d changed again.\n")
+			  % changed_id);
+	    continue;
+	  }
 
-	std::cerr << (boost::format ("Drop template #%d from cache.\n")
-		      % changed_id);
-	CSPARSE *tmpl = (*this)[changed_id];
-	cs_destroy (&tmpl);
-	(*this)[changed_id] = NULL;
+	// Return the whole chain to free store.
+	for (ssize_t i = release (_m_wd_to_id[evt.wd]); i != -1; )
+	  {
+	    ssize_t next = release (_m_collision[i], _m_collision_free);
+	    _m_collision_free = i;
+	    i = next;
+	  }
 
-	// We use IN_ONESHOT, so this wd is not valid anymore.
-	_m_wd_to_id[evt.wd] = -1;
+	std::ostringstream os;
+	for (ssize_t i = _m_collision_free; i != -1;
+	     i = _m_collision[i].next)
+	  os << "," << i;
+	std::cerr << boost::format ("Free chain is now %s\n") % os.str ();
       }
 
   return (*this)[id];
