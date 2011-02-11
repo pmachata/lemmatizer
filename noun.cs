@@ -21,7 +21,7 @@ call:begin_html(Form.singular.nominative.0) ?>
 
 <table>
 <thead>
-<tr><td>&nbsp;</td><td>ед</td><td>мн</td></tr>
+<tr><td>&nbsp;</td><td>ед.ч.</td><td>мн.ч.</td></tr>
 </thead>
 
 <tbody>

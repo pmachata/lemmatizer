@@ -90,5 +90,9 @@ bool extract_rus_number (gram_code_t &ret, gram_code_t code);
 bool extract_rus_case (gram_code_t &ret, gram_code_t code);
 bool extract_rus_gender (gram_code_t &ret, gram_code_t code);
 bool extract_rus_adj_degree (gram_code_t &ret, gram_code_t code);
+bool extract_rus_voice (gram_code_t &ret, gram_code_t code);
+bool extract_rus_animacy (gram_code_t &ret, gram_code_t code);
+bool extract_rus_tense (gram_code_t &ret, gram_code_t code);
+bool extract_rus_person (gram_code_t &ret, gram_code_t code);
 
 #endif//RUS_GRAMTAB_HH
