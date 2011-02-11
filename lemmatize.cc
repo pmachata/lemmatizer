@@ -164,7 +164,7 @@ lemmatize::const_iterator::ancode () const
 }
 
 gramcodes
-lemmatize::const_iterator::common_ancode ()
+lemmatize::const_iterator::common_ancode () const
 {
   return gramcodes (_m_agramtab,
 		    paradigm ().GetCommonAncode ());

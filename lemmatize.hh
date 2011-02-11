@@ -76,7 +76,7 @@ public:
   bool found () const;
 
   gramcodes ancode () const;
-  gramcodes common_ancode ();
+  gramcodes common_ancode () const;
 
   part_of_speech get_part_of_speech () const;
 
