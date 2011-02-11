@@ -31,62 +31,56 @@ pos_handler::template_name () const
 }
 
 void
-pos_handler::fill_hdf (CAgramtab *agramtab,
-		       lemmatize::const_iterator const &it,
-		       hdf_data_map &data) const
+pos_handler_map::insert (int pos, pos_handler const *handler)
 {
-  // We should never be called for delegating handler.
-  assert (_m_name);
-  throw std::runtime_error (std::string ("fill_hdf not implemented for ")
-			    + _m_name);
+  assert (pos >= 0);
+  size_t idx = (size_t)pos;
+  if (idx >= size ())
+    resize (idx + 1, NULL);
+  (*this)[idx] = handler;
 }
 
 pos_handler_map::pos_handler_map ()
 {
   pos_handler const *noun = new noun_handler ();
-  insert (std::make_pair ((int)pos_noun, noun));
-  insert (std::make_pair ((int)pos_pronoun, noun));
+  insert (pos_noun, noun);
+  insert (pos_pronoun, noun);
 
   pos_handler const *verb = new verb_handler ();
-  insert (std::make_pair ((int)pos_verb, verb));
-  insert (std::make_pair ((int)pos_infinitive, verb));
-  insert (std::make_pair ((int)pos_adj_participle, verb));
-  insert (std::make_pair ((int)pos_adv_participle, verb));
+  insert (pos_verb, verb);
+  insert (pos_infinitive, verb);
+  insert (pos_adj_participle, verb);
+  insert (pos_adv_participle, verb);
 
   pos_handler const *adj = new adjective_handler ();
-  insert (std::make_pair ((int)pos_adjective, adj));
-  insert (std::make_pair ((int)pos_short_adjective, adj));
+  insert (pos_adjective, adj);
+  insert (pos_short_adjective, adj);
 
   pos_handler const *simple = new simple_handler ();
-  insert (std::make_pair ((int)pos_adverb, simple));
-  insert (std::make_pair ((int)pos_interjection, simple));
-  insert (std::make_pair ((int)pos_transition_word, simple));
-  insert (std::make_pair ((int)pos_particle, simple));
-  insert (std::make_pair ((int)pos_conjunction, simple));
+  insert (pos_adverb, simple);
+  insert (pos_interjection, simple);
+  insert (pos_transition_word, simple);
+  insert (pos_particle, simple);
+  insert (pos_conjunction, simple);
 }
 
 pos_handler_map::~pos_handler_map ()
 {
-  std::set<pos_handler const *> deleted;
+  // Take care not to delete twice, we share handlers.
+  std::sort (begin (), end ());
+  pos_handler const *last = NULL;
   for (iterator it = begin (); it != end (); ++it)
     {
-      // Take care not to delete twice.  We update the cache for
-      // delegation.
-      pos_handler const *to_delete = it->second;
-      if (deleted.find (to_delete) == deleted.end ())
-	delete to_delete;
-      deleted.insert (to_delete);
+      if (*it != last)
+	delete *it;
+      last = *it;
     }
 }
 
 pos_handler const *
 pos_handler_map::get_handler (int pos)
 {
-  pos_handler const *handler = NULL;
-  const_iterator it = find (pos);
-  if (it == end ())
+  if (pos < 0 || (size_t)pos >= size ())
     return NULL;
-  handler = it->second;
-
-  return handler;
+  return operator[] (pos);
 }

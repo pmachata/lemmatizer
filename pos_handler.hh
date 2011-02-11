@@ -41,12 +41,14 @@ public:
 
   virtual void fill_hdf (CAgramtab *agramtab,
 			 lemmatize::const_iterator const &it,
-			 hdf_data_map &data) const;
+			 hdf_data_map &data) const = 0;
 };
 
 class pos_handler_map
-  : private std::map<int, pos_handler const *>
+  : private std::vector<pos_handler const *>
 {
+  void insert (int pos, pos_handler const *handler);
+
 public:
   pos_handler_map ();
   ~pos_handler_map ();
