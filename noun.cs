@@ -21,16 +21,16 @@ include:"pos.cs" ?><?cs
 
 call:begin_html(Form.singular.nominative.0) ?>
 
-<h1><?cs call:pos_russian(Form.pos.0) ?>: <?cs
+<h1><?cs call:pos_russian(Form.pos) ?>: <?cs
 alt:Form.singular.nominative.0 ?><?cs
   var:Form.plural.nominative.0 ?><?cs
 /alt ?></h1>
 
 <h2>Свойства</h2>
-
 <table>
-<tr><td>found</td><td><?cs if:Form.found ?>yes<?cs else ?>no<?cs /if ?></td></tr>
-<?cs if:subcount(Form.gender) ?><tr><td>род</td><td><?cs call:out_variants(Form.gender) ?></td></tr><?cs /if ?>
+<tbody><?cs
+call:html_properties(Form)
+?></tbody>
 </table>
 
 <h2>Таблица склонений</h2>

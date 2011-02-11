@@ -35,9 +35,14 @@ table thead {
 
 table td {
     border: 1px dotted black;
+    color: black;
 }
 
-table thead td {
+.colloquial {
+    color: gray;
+}
+
+table thead {
     border-top: 2px solid black;
     border-bottom: 2px solid black;
 }

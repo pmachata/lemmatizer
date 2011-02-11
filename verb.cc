@@ -133,5 +133,13 @@ verb_handler::fill_hdf (CAgramtab *agramtab,
 	}
 
       data[key].push_back (std::make_pair (*ft, ft.accent ()));
+      if (extra.size () > 0)
+	{
+	  std::string subkey = str (boost::format ("%s.%d.extra")
+				    % key % (data[key].size () - 1));
+	  for (std::vector<gram_code_t>::const_iterator it = extra.begin ();
+	       it != extra.end (); ++it)
+	    data[subkey].push_back (std::make_pair (format_rus (*it), -1));
+	}
     }
 }

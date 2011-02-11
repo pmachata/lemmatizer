@@ -23,10 +23,11 @@ call:begin_html(Form.infinitive.0) ?>
 <h1>Глагол: <?cs var:Form.infinitive.0 ?></h1>
 
 <h2>Свойства</h2>
-
 <table>
-<tr><td>found</td><td><?cs if:Form.found ?>yes<?cs else ?>no<?cs /if ?></td></tr>
-<tr><td>инфинитив</td><td><?cs call:out_variants(Form.infinitive) ?></td></tr>
+<tbody><?cs
+call:html_properties(Form)
+?><tr><td>инфинитив</td><td><?cs call:out_variants(Form.infinitive) ?></td></tr>
+</tbody>
 </table><?cs
 
 if:subcount(Form.future) ?>

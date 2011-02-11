@@ -24,7 +24,16 @@ def:out_variants(val) ?><?cs
 
 def:html_variants(val) ?><?cs
   each:item = val ?><?cs
-    if !first(item) ?><br/><?cs /if ?><?cs
+    if !first(item) ?><br/><?cs
+    /if ?><?cs
+    if:subcount(item.extra) ?><span class="<?cs
+      each:extra_item = item.extra ?><?cs
+        if !first(extra_item) ?> <?cs /if ?><?cs
+	var:extra_item ?><?cs
+      /each ?>"><?cs
+    /if ?><?cs
     var:item ?><?cs
+    if:subcount(item.extra) ?></span><?cs
+    /if ?><?cs
   /each ?><?cs
 /def ?>

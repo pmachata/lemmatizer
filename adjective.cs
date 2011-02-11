@@ -20,7 +20,14 @@ include:"html.cs" ?><?cs
 
 call:begin_html(Form.positive.masculine.nominative.0) ?>
 
-<h1>Прилагательное: <?cs var:Form.positive.masculine.nominative.0 ?></h1><?cs
+<h1>Прилагательное: <?cs var:Form.positive.masculine.nominative.0 ?></h1>
+
+<h2>Свойства</h2>
+<table>
+<tbody><?cs
+call:html_properties(Form)
+?></tbody>
+</table><?cs
 
 if:subcount(Form.positive) ?>
 <h2>Положительная степень</h2><?cs

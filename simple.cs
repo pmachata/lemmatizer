@@ -21,12 +21,12 @@ include:"pos.cs" ?><?cs
 
 call:begin_html(Form.word.0) ?>
 
-<h1><?cs call:pos_russian(Form.pos.0) ?>: <?cs var:Form.word.0 ?></h1><?cs
+<h1><?cs call:pos_russian(Form.pos) ?>: <?cs var:Form.word.0 ?></h1>
 
-if:subcount(Form.word)>1 ?>
+<h2>Свойства</h2>
 <table>
-<tbody>
-<tr><td>слово</td><td><?cs call:out_variants(Form.word) ?></td></tr>
+<tbody><?cs
+call:html_properties(Form)
+?><tr><td>слово</td><td><?cs call:out_variants(Form.word) ?></td></tr>
 </tbody>
-</table><?cs
-/if ?>
+</table>

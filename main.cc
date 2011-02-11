@@ -214,9 +214,12 @@ public:
 
 	handle_neoerr (hdf_set_valuef (_m_hdf, "Form.found=%d",
 				       (int)it.found ()));
-
-	data["pos"].push_back
-	  (std::make_pair (format_rus (pos.number_as<pos_code_t> ()), -1));
+	// We want English string here, not the silly short Russian
+	// ones that they provide in Seman.
+	char const *pos_string = format_rus (pos.number_as<pos_code_t> ());
+	handle_neoerr (hdf_set_value (_m_hdf, "Form.pos", pos_string));
+	handle_neoerr (hdf_set_value (_m_hdf, "Form.source",
+				      show (it->GetSrcNorm ()).c_str ()));
 
 	for (hdf_data_map::const_iterator it = data.begin ();
 	     it != data.end (); ++it)

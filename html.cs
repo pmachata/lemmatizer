@@ -136,4 +136,12 @@ if:subcount(sub.short) ?>
 </tbody>
 </table><?cs
 
+/def ?><?cs
+
+def:html_properties (sub) ?>
+<tr><td>found</td><td><?cs if:sub.found ?>yes<?cs else ?>no<?cs /if ?></td></tr>
+<tr><td>source</td><td><?cs var:sub.source ?></td></tr>
+<?cs if:subcount(sub.gender) ?><tr><td>род</td><td><?cs
+  call:out_variants(sub.gender) ?></td></tr><?cs
+/if ?><?cs
 /def ?>
