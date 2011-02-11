@@ -11,12 +11,14 @@ DEPFILES = $(patsubst %.cc,%.cc-dep,$(CCSOURCES))
 
 all: $(TARGETS)
 
-lemmatizer: LDFLAGS += -lLemmatizerrsh -lAgramtabrsh -lGraphanrsh \
-	-lStructDictrsh -lMorphWizardrsh -lneo_cs -lneo_utl -lfcgi
-main.o: CXXPPFLAGS += -I/usr/include/ClearSilver
-lemmatizer: adjective.o format.o forms.o gramcodes.o lemmatize.o main.o \
-	noun.o part_of_speech.o pos_handler.o backend.o rus_gramtab.o \
-	simple.o verb.o fcgi_backend.o url_decode.o
+lemmatizer: LDFLAGS += -lLemmatizerrsh -lAgramtabrsh -lGraphanrsh 	\
+	-lStructDictrsh -lMorphWizardrsh -lneo_cs -lneo_utl -lfcgi \
+	-lboost_filesystem -lboost_system
+template_cache.o main.o: CXXPPFLAGS += -I/usr/include/ClearSilver
+lemmatizer: adjective.o backend.o fcgi_backend.o format.o forms.o	\
+	gramcodes.o lemmatize.o main.o noun.o part_of_speech.o		\
+	pos_handler.o rus_gender.o rus_gramtab.o simple.o		\
+	template_cache.o url_decode.o verb.o
 
 -include $(DEPFILES)
 

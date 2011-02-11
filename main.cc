@@ -10,6 +10,7 @@
 
 #include <cs/cs.h>
 #include <util/neo_files.h>
+#include <boost/filesystem.hpp>
 
 #include "config.hh"
 #include "forms.hh"
@@ -20,6 +21,7 @@
 #include "backend.hh"
 #include "fcgi_backend.hh"
 #include "rus_gramtab.hh"
+#include "template_cache.hh"
 
 void
 fail (std::string const &reason)
@@ -49,20 +51,6 @@ convert (std::string const &word, iconv_t ic_d)
   return outbuf;
 }
 
-void
-handle_neoerr (NEOERR *err)
-{
-  if (err != NULL)
-    {
-      STRING str;
-      string_init (&str);
-      nerr_error_string (err, &str);
-      std::string what = str.buf;
-      string_clear (&str);
-      throw std::runtime_error (what);
-    }
-}
-
 class hdf
 {
   HDF *_m_hdf;
@@ -90,46 +78,9 @@ class default_hdf
 public:
   default_hdf ()
   {
+    boost::filesystem::path cwd (boost::filesystem::current_path ());
     handle_neoerr (hdf_set_valuef (*this, "hdf.loadpaths.0=%s",
-				   config::path.c_str ()));
-  }
-};
-
-class template_cache
-  : public std::vector<CSPARSE *>
-{
-  typedef std::vector<CSPARSE *> super_t;
-public:
-  CSPARSE *add (HDF *hdf, int id, char const *template_name)
-  {
-    assert (id >= 0);
-    if ((size_t)id >= size ())
-      resize ((size_t)id + 1);
-    assert (at (id) == NULL);
-
-    CSPARSE *parse;
-    handle_neoerr (cs_init (&parse, hdf));
-    handle_neoerr (cs_parse_file (parse, template_name));
-    (*this)[id] = parse;
-
-    return get (id);
-  }
-
-  CSPARSE *get (int id)
-  {
-    if (id < 0 || (size_t)id >= size ())
-      return NULL;
-    else
-      return (*this)[id];
-  }
-
-  ~template_cache ()
-  {
-    for (const_iterator it = begin (); it != end (); ++it)
-      {
-	CSPARSE *parse = *it;
-	cs_destroy (&parse);
-      }
+				   cwd.string ().c_str ()));
   }
 };
 
@@ -228,14 +179,21 @@ public:
 	  {
 	    std::string file_name = handler->template_name ();
 	    file_name += ".cs";
-	    tmpl = _m_templates.add (_m_hdf, pos.number (),
-				     file_name.c_str ());
-	    if (tmpl == NULL)
+	    try
+	      {
+		tmpl = _m_templates.add (_m_hdf, pos.number (),
+					 file_name.c_str ());
+		if (tmpl == NULL)
+		  throw std::runtime_error ("Unknown reason.");
+	      }
+	    catch (std::runtime_error const &err)
 	      {
 		std::cerr << "Couldn't load the template \""
-			  << file_name << "\"." << std::endl;
+			  << file_name << ": " << err.what ()
+			  << "." << std::endl;
 		continue;
 	      }
+	    assert (tmpl != NULL);
 	  }
 	assert (tmpl != NULL);
 
