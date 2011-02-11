@@ -116,14 +116,14 @@ template_cache::get (int id)
 	assert (len == sizeof (evt));
 	std::cerr << boost::format ("got event: watch=%d\n") % evt.wd;
 
-	int changed_id = -2; // So that we can distinguish untouched
-			     // changed_id from uninitialized element
-			     // of _m_wd_to_id.
-	if (evt.wd < 0
-	    || (size_t)evt.wd >= _m_wd_to_id.size ()
-	    || (changed_id = _m_wd_to_id[evt.wd]) < 0)
-	  std::cerr << (boost::format ("Inotify: strange wd=%d, id=%d.\n")
-			% evt.wd % changed_id);
+	if (evt.wd < 0 || (size_t)evt.wd >= _m_wd_to_id.size ())
+	  std::cerr << boost::format ("Inotify: strange wd=%d.\n") % evt.wd;
+
+	int changed_id = _m_wd_to_id[evt.wd];
+	if (changed_id < 0)
+	  // This must be a second change of a file that we already
+	  // invalidated.
+	  continue;
 
 	std::cerr << (boost::format ("Drop template #%d from cache.\n")
 		      % changed_id);
