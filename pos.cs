@@ -4,11 +4,17 @@
    speech (e.g. verbs are simply "г").  So we have to do it this
    roundabout way. ?><?cs
 
-  if val == "noun" ?>существительное<?cs else ?><?cs
-  if val == "adjective" ?>прилагательное<?cs else ?><?cs
-  if val == "adverb" ?>наречие<?cs else ?><?cs
-  if val == "interjection" ?>междуметие<?cs else ?><?cs
-  if val == "verb" ?>глагол<?cs else ?><?cs var:val ?><?cs
+  if val == "noun" ?>Существительное<?cs else ?><?cs
+  if val == "adjective" ?>Прилагательное<?cs else ?><?cs
+  if val == "adverb" ?>Наречие<?cs else ?><?cs
+  if val == "interjection" ?>Междуметие<?cs else ?><?cs
+  if val == "transition_word" ?>Вводное слово<?cs else ?><?cs
+  if val == "particle" ?>Частица<?cs else ?><?cs
+  if val == "conjunction" ?>Союз<?cs else ?><?cs
+  if val == "verb" ?>Глагол<?cs else ?><?cs var:val ?><?cs
+  /if ?><?cs
+  /if ?><?cs
+  /if ?><?cs
   /if ?><?cs
   /if ?><?cs
   /if ?><?cs

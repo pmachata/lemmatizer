@@ -16,6 +16,12 @@ format_rus (pos_code_t val)
       return "adverb";
     case pos_interjection:
       return "interjection";
+    case pos_transition_word:
+      return "transition_word";
+    case pos_particle:
+      return "particle";
+    case pos_conjunction:
+      return "conjunction";
 
     case pos_3:
     case pos_4:
@@ -25,10 +31,7 @@ format_rus (pos_code_t val)
     case pos_9:
     case pos_10:
     case pos_11:
-    case pos_12:
-    case pos_14:
     case pos_15:
-    case pos_16:
     case pos_short_adjective:
     case pos_adj_participle:
     case pos_adv_participle:
@@ -108,6 +111,8 @@ format_rus (gram_code_t val)
       return "positive";
     case gm_secondary:
       return "secondary";
+    case gm_colloquial:
+      return "colloquial";
 
     case gm_25:
     case gm_26:
@@ -125,7 +130,6 @@ format_rus (gram_code_t val)
     case gm_impersonal:
     case gm_jargon:
     case gm_42:
-    case gm_colloquial:
     case gm_44:
     case gm_45:
     case gm_poetic:

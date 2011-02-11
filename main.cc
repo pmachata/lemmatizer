@@ -16,6 +16,7 @@
 #include "fcgi_backend.hh"
 #include "rus_gramtab.hh"
 #include "template_cache.hh"
+#include "format.hh"
 
 void
 fail (std::string const &reason)
@@ -194,10 +195,13 @@ public:
 	hdf_data_map data;
 	handler->fill_hdf (_m_agramtab, it, data);
 
+	data["pos"].push_back
+	  (std::make_pair (format_rus (pos.number_as<pos_code_t> ()), -1));
+
 	for (hdf_data_map::const_iterator it = data.begin ();
 	     it != data.end (); ++it)
 	  {
-	    std::string name = std::string ("Form.") + it->first;
+	    std::string name = std::string ("Form.") + show (it->first);
 	    HDF *node;
 	    handle_neoerr (hdf_get_node (_m_hdf, name.c_str (), &node));
 	    for (size_t i = 0; i < it->second.size (); ++i)
@@ -210,7 +214,7 @@ public:
 	      }
 	  }
 
-	//handle_neoerr (hdf_dump (hdf, ">"));
+	handle_neoerr (hdf_dump (_m_hdf, ">"));
 
 	struct _ {
 	  static NEOERR *render_cb (void *data, char *str)

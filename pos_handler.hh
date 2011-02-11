@@ -24,6 +24,8 @@ public:
   explicit pos_handler (int delegate);
 
   char const *template_name () const;
+
+  // XXX get rid of this.  It's useless now that we can share handlers
   int delegate () const;
 
   virtual void fill_hdf (CAgramtab *agramtab,

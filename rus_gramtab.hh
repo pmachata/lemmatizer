@@ -16,11 +16,11 @@ enum pos_code_t
     pos_9 = 9, //"ПРЕДК"
     pos_10 = 10, //"ПРЕДЛ"
     pos_11 = 11, //"ПОСЛ"
-    pos_12 = 12, //"СОЮЗ"
+    pos_conjunction = 12,
     pos_interjection = 13,
-    pos_14 = 14, //"ВВОДН"
+    pos_transition_word = 14,
     pos_15 = 15, //"ФРАЗ"
-    pos_16 = 16, //"ЧАСТ"
+    pos_particle = 16,
     pos_short_adjective = 17,
     pos_adj_participle = 18, //"ПРИЧАСТИЕ"
     pos_adv_participle = 19, //"ДЕЕПРИЧАСТИЕ"

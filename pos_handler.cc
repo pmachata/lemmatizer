@@ -55,6 +55,9 @@ pos_handler_map::pos_handler_map ()
   pos_handler const *simple = new simple_handler ();
   insert (std::make_pair ((int)pos_adverb, simple));
   insert (std::make_pair ((int)pos_interjection, simple));
+  insert (std::make_pair ((int)pos_transition_word, simple));
+  insert (std::make_pair ((int)pos_particle, simple));
+  insert (std::make_pair ((int)pos_conjunction, simple));
 }
 
 pos_handler_map::~pos_handler_map ()
