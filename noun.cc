@@ -2,51 +2,10 @@
 #include "forms.hh"
 #include "rus_gramtab.hh"
 #include "format.hh"
+#include "rus_gender.hh"
 
 #include <boost/format.hpp>
-
-namespace
-{
-  gram_code_t
-  get_gender (lemmatize::forms::const_iterator form)
-  {
-    gramcodes ac = form.ancode ();
-    std::vector<grammeme> grammemes = ac.grammemes ();
-
-    bool is_masculine = false;
-    bool is_feminine = false;
-    bool is_neuter = false;
-    for (std::vector<grammeme>::const_iterator gt = grammemes.begin ();
-	 gt != grammemes.end (); ++gt)
-      switch (gt->value ())
-	{
-	case gm_masculine:
-	  is_masculine = true;
-	  continue;
-	case gm_feminine:
-	  is_feminine = true;
-	  continue;
-	case gm_neuter:
-	  is_neuter = true;
-	  continue;
-	case gm_masc_femin:
-	  is_masculine = true;
-	  is_feminine = true;
-	  continue;
-	}
-
-    if (is_masculine && is_feminine && !is_neuter)
-      return gm_masc_femin;
-    if (is_masculine && !is_feminine && !is_neuter)
-      return gm_masculine;
-    if (!is_masculine && is_feminine && !is_neuter)
-      return gm_feminine;
-    if (!is_masculine && !is_feminine && is_neuter)
-      return gm_neuter;
-
-    return gm__invalid;
-  }
-}
+#include <bitset>
 
 noun_handler::noun_handler ()
   : pos_handler ("noun")
@@ -58,10 +17,14 @@ noun_handler::fill_hdf (CAgramtab *agramtab,
 			hdf_data_map &data) const
 {
   lemmatize::forms forms = it.forms ();
-  gram_code_t gender = get_gender (forms.begin ());
-  char const *word = gender != gm__invalid
-    ? format_rus (gender) : "unknown";
-  data["gender"].push_back (std::make_pair (word, -1));
+
+  gender_set_t genders = get_gender (forms.begin ().ancode ());
+  for (size_t i = 0; i < genders.size (); ++i)
+    if (genders[i])
+      {
+	char const *name = format_rus (gender_to_gramcode[i]);
+	data["gender"].push_back (std::make_pair (name, -1));
+      }
 
   for (lemmatize::forms::const_iterator ft = forms.begin ();
        ft != forms.end (); ++ft)
