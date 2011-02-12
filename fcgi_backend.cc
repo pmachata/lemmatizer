@@ -36,11 +36,21 @@ fcgi_backend::get_word (std::string &word)
     if (strncmp (*it, QS, sizeof (QS) - 1) == 0)
       {
 	word = *it + sizeof (QS) - 1;
+
+	// Arbitrary cutoff.  While it seems to not be a problem for
+	// Seman, nobody really needs to lemmatize words this long.
+	// Note that since urlencode is in effect, this really is just
+	// about 30 characters.  This should still be enough for
+	// sensible words.
+	if (word.size () > 100)
+	  word = "";
+
 	url_decode (word);
 	return true;
       }
 
-  return false;
+  word = "";
+  return true;
 }
 
 void

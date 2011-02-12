@@ -23,6 +23,7 @@
 
 #include <cs/cs.h>
 #include <boost/filesystem.hpp>
+#include <boost/format.hpp>
 
 #include "forms.hh"
 #include "lemmatize.hh"
@@ -168,7 +169,7 @@ public:
   void
   process (std::string const &line, backend *back)
   {
-    lemmatize lem (convert (line, _m_iconv_to), _m_lemmatizer, _m_agramtab);
+    lemmatize lem (line, _m_lemmatizer, _m_agramtab);
     for (lemmatize::const_iterator it = lem.begin ();
 	 it != lem.end (); ++it)
       {
@@ -261,19 +262,36 @@ public:
   loop (backend *back)
   {
     std::string line;
-    while (back->get_word (line))
-      {
-	back->before_render ();
-	Trim (line);
-	if (line.empty ())
-	  continue;
+    while (true)
+      try
+	{
+	  if (!back->get_word (line))
+	    break;
+	  back->before_render ();
 
-	// XXX here we would perhaps like to convert the string to
-	// lower case.
+	  line = convert (line, _m_iconv_to);
+	  Trim (line);
+	  if (line.empty ())
+	    continue;
 
-	process (line, back);
-	back->after_render ();
-      }
+	  // XXX here we would perhaps like to convert the string to
+	  // lower case.
+
+	  process (line, back);
+	  back->after_render ();
+	}
+      catch (CExpc const &exc)
+	{
+	  std::cerr << boost::format ("seman exception: %s\n") % exc.m_strCause;
+	}
+      catch (std::runtime_error const &err)
+	{
+	  std::cerr << boost::format ("runtime error: %s\n") % err.what ();
+	}
+      catch (...)
+	{
+	  std::cerr << "unknown exception\n";
+	}
     return 0;
   }
 
@@ -293,19 +311,8 @@ public:
 };
 
 int main(int argc, char **argv)
-  try
-    {
-      setlocale (LC_ALL, "");
-      std::cerr << "LC_ALL=" << setlocale (LC_ALL, NULL) << std::endl;
-      return lemmatizer_app ().fcgi_run ();
-    }
-  catch (CExpc const &exc)
-    {
-      std::cerr << "seman exception: " << exc.m_strCause << std::endl;
-      return 1;
-    }
-  catch (std::runtime_error const &err)
-    {
-      std::cerr << "runtime error: " << err.what () << std::endl;
-      return 1;
-    }
+{
+  setlocale (LC_ALL, "");
+  std::cerr << "LC_ALL=" << setlocale (LC_ALL, NULL) << std::endl;
+  return lemmatizer_app ().fcgi_run ();
+}
