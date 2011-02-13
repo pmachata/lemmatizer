@@ -18,6 +18,7 @@
 #include <iconv.h>
 #include <iostream>
 #include <stdexcept>
+#include <wordexp.h>
 
 #include <AgramtabLib/RusGramTab.h>
 
@@ -87,12 +88,53 @@ public:
 class default_hdf
   : public hdf
 {
+  bool
+  get_home (boost::filesystem::path &ret)
+  {
+    wordexp_t we;
+    int err = wordexp ("~", &we, WRDE_NOCMD);
+    if (err == 0)
+      {
+	assert (we.we_wordc > 0);
+	ret = we.we_wordv[0];
+      }
+
+    wordfree (&we);
+    if (err != 0)
+      std::cerr << "Unknown user home directory." << std::endl;
+
+    return err == 0;
+  }
+
+  NEOERR *
+  try_read_config (boost::filesystem::path dir)
+  {
+    dir /= "lemmatizer.hdf";
+    NEOERR *ret = hdf_read_file (*this, dir.string ().c_str ());
+    if (ret == NULL)
+      std::cerr << boost::format ("Config loaded from %s\n") % dir;
+    return ret;
+  }
+
 public:
   default_hdf ()
   {
-    boost::filesystem::path cwd (boost::filesystem::current_path ());
-    handle_neoerr (hdf_set_valuef (*this, "hdf.loadpaths.0=%s",
-				   cwd.string ().c_str ()));
+    // Look for config file in current directory, then in user's home
+    // directory and then in system-wide /etc/ directory.
+
+    if (try_read_config (boost::filesystem::current_path ()) == NULL)
+      return;
+
+    boost::filesystem::path pth;
+    NEOERR *err;
+    if (get_home (pth)
+	&& (err = try_read_config (pth / ".lemmatizer")) == NULL)
+      return;
+
+    if ((err = try_read_config ("/etc/")) == NULL)
+      return;
+
+    handle_neoerr (err);
   }
 };
 
@@ -238,7 +280,7 @@ public:
 	      }
 	  }
 
-	handle_neoerr (hdf_dump (_m_hdf, ">"));
+	//handle_neoerr (hdf_dump (_m_hdf, ">"));
 
 	struct _ {
 	  static NEOERR *render_cb (void *data, char *str)

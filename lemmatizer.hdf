@@ -1,0 +1,5 @@
+hdf {
+    loadpaths {
+    	0 = /var/www/lemmatizer/
+    }
+}
