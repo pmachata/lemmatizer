@@ -1,0 +1,11 @@
+-*-org-*-
+* TODO
+** verbs don't emit adverbial particibles
+** nouns don't emit vocative case
+** html output is not standard-conforming
+   and in fact is completely broken, with multiple <html> and possibly
+   multiple </html>
+** noun gender may most likely differ per form
+   e.g. александр gives александр, александрович and александровна.
+   путин gives both путин and путина.  It's hard to imagine that the
+   gender doesn't change here per-form.
