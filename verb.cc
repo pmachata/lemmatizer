@@ -38,7 +38,6 @@ verb_handler::fill_hdf (CAgramtab *agramtab,
   for (lemmatize::forms::const_iterator ft = forms.begin ();
        ft != forms.end (); ++ft)
     {
-      std::string category;
       std::vector<grammeme> gs = ft.ancode ().grammemes ();
 
       gram_code_t number = gm__invalid;
@@ -70,17 +69,11 @@ verb_handler::fill_hdf (CAgramtab *agramtab,
 	      else if (code == gm_inanimate)
 		inanimate = true;
 	      else if (code == gm_colloquial)
-		{
-		  extra.push_back (code);
-		  continue;
-		}
+		extra.push_back (code);
 	      else
 		std::cerr << (boost::format ("Unhandled grammeme %s\n")
 			      % format_rus (code));
 	    }
-	  if (category.length () > 0)
-	    category += ",";
-	  category += gt->c_str ();
 	}
 
       std::string key;
