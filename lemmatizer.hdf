@@ -3,3 +3,6 @@ hdf {
     	0 = /var/www/lemmatizer/
     }
 }
+lemmatizer {
+    dump = 1
+}

@@ -83,6 +83,14 @@ public:
   {
     return _m_hdf;
   }
+
+  HDF *
+  node (char const *name)
+  {
+    HDF *node;
+    handle_neoerr (hdf_get_node (*this, name, &node));
+    return node;
+  }
 };
 
 class default_hdf
@@ -153,6 +161,7 @@ class lemmatizer_app
   pos_handler_map _m_handlers;
   template_cache _m_templates;
   default_hdf _m_hdf;
+  HDF *_m_app_hdf; // Sub-node of _m_hdf holding app data.
 
   template <class T>
   T check (T retval, std::string const &reason)
@@ -175,6 +184,7 @@ public:
 
     , _m_iconv_from (check (iconv_open ("utf-8", "windows-1251"),
 			    "iconv_open from"))
+    , _m_app_hdf (_m_hdf.node ("lemmatizer"))
   {
     string err;
     if (!_m_lemmatizer->LoadDictionariesRegistry(err))
@@ -268,8 +278,7 @@ public:
 	     it != data.end (); ++it)
 	  {
 	    std::string name = std::string ("Form.") + show (it->first);
-	    HDF *node;
-	    handle_neoerr (hdf_get_node (_m_hdf, name.c_str (), &node));
+	    HDF *node = _m_hdf.node (name.c_str ());
 	    for (size_t i = 0; i < it->second.size (); ++i)
 	      {
 		std::string const &word = it->second[i].first;
@@ -280,7 +289,8 @@ public:
 	      }
 	  }
 
-	//handle_neoerr (hdf_dump (_m_hdf, ">"));
+	if (hdf_get_int_value (_m_app_hdf, "dump", 0))
+	  handle_neoerr (hdf_dump (_m_hdf.node ("Form"), "Form"));
 
 	struct _ {
 	  static NEOERR *render_cb (void *data, char *str)
