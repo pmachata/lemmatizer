@@ -75,7 +75,7 @@ verb_handler::fill_hdf (CAgramtab *agramtab,
 		  continue;
 		}
 	      else
-		std::cout << (boost::format ("Unhandled grammeme %s\n")
+		std::cerr << (boost::format ("Unhandled grammeme %s\n")
 			      % format_rus (code));
 	    }
 	  if (category.length () > 0)

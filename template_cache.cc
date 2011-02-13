@@ -94,8 +94,10 @@ template_cache::add (HDF *hdf, int id, char const *template_name)
 	  if (wd2 >= _m_wd_to_id.size ())
 	    _m_wd_to_id.resize (wd2 + 1);
 
+#ifdef LOG
 	  std::cerr << (boost::format ("Inotify: watching %s (%d, wd=%d).\n")
 			% path % id % wd);
+#endif
 
 	  // If this slot is already used, it means that the template
 	  // is used under more than one ID.
@@ -124,8 +126,10 @@ template_cache::add (HDF *hdf, int id, char const *template_name)
 	  for (ssize_t i = _m_wd_to_id[wd].next; i != -1;
 	       i = _m_collision[i].next)
 	    os << boost::format (",(%d)%d") % i % _m_collision[i].id;
+#ifdef LOG
 	  std::cerr << boost::format ("wd=%d now refers to templates %s\n")
 	    % wd % os.str ();
+#endif
 	}
     }
 
@@ -140,8 +144,10 @@ template_cache::add (HDF *hdf, int id, char const *template_name)
 ssize_t
 template_cache::release (wd_to_id_s &slot, ssize_t next)
 {
+#ifdef LOG
   std::cerr << (boost::format ("Drop template #%d from cache.\n")
 		% slot.id);
+#endif
   CSPARSE *tmpl = (*this)[slot.id];
   cs_destroy (&tmpl);
   (*this)[slot.id] = NULL;
@@ -173,24 +179,30 @@ template_cache::get (int id)
 
 	// EAGAIN: The read would block, i.e. no data is ready.
 	// There's no need to warn about this.
+#ifdef LOG
 	if (len < 0 && errno != EAGAIN)
 	  std::cerr << boost::format ("Inotify read: %s\n") % strerror (errno);
+#endif
 	if (len <= 0)
 	  break;
 
 	assert (len == sizeof (evt));
-	std::cerr << boost::format ("got event: watch=%d\n") % evt.wd;
 
 	if (evt.wd < 0 || (size_t)evt.wd >= _m_wd_to_id.size ())
-	  std::cerr << boost::format ("Inotify: strange wd=%d.\n") % evt.wd;
+	  {
+	    std::cerr << boost::format ("Inotify: strange wd=%d.\n") % evt.wd;
+	    continue;
+	  }
 
 	int changed_id = _m_wd_to_id[evt.wd].id;
 	if (changed_id < 0)
 	  {
 	    // This must be a second change of a file that we already
 	    // invalidated.
+#ifdef LOG
 	    std::cerr << (boost::format ("File #%d changed again.\n")
 			  % changed_id);
+#endif
 	    continue;
 	  }
 
@@ -206,7 +218,9 @@ template_cache::get (int id)
 	for (ssize_t i = _m_collision_free; i != -1;
 	     i = _m_collision[i].next)
 	  os << "," << i;
+#ifdef LOG
 	std::cerr << boost::format ("Free chain is now %s\n") % os.str ();
+#endif
       }
 
   return (*this)[id];
