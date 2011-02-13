@@ -16,8 +16,9 @@
 
 SEMAN_INCLUDE = /usr/include/Seman
 TARGETS = lemmatizer
-CXXPPFLAGS = $(CXXINCLUDES) -I$(SEMAN_INCLUDE)
-CXXFLAGS = -Wall -Wno-unknown-pragmas -g -O2 $(CXXPPFLAGS)
+CXXPPFLAGS += $(CXXINCLUDES) -I$(SEMAN_INCLUDE)
+CXXFLAGS = -g -O2
+override CXXFLAGS += -Wall -Wno-unknown-pragmas $(CXXPPFLAGS)
 LDFLAGS =
 
 DIRS = .
@@ -27,7 +28,7 @@ DEPFILES = $(patsubst %.cc,%.cc-dep,$(CCSOURCES))
 
 all: $(TARGETS)
 
-lemmatizer: LDFLAGS += -lLemmatizerrsh -lAgramtabrsh -lGraphanrsh 	\
+lemmatizer: override LDFLAGS += -lLemmatizerrsh -lAgramtabrsh -lGraphanrsh 	\
 	-lStructDictrsh -lMorphWizardrsh -lneo_cs -lneo_utl -lfcgi \
 	-lboost_filesystem -lboost_system
 template_cache.o main.o: CXXPPFLAGS += -I/usr/include/ClearSilver

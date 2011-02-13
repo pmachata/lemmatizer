@@ -1,0 +1,5 @@
+Dependencies:
+ boost
+ fcgi
+ clearsilver
+ seman
