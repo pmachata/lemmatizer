@@ -1,5 +1,16 @@
+This package is Lemmatizer, a web interface to Russian LemmatizerLib of
+Seman.  It was written by Petr Machata (c) 2011.
+
 Dependencies:
  boost
  fcgi
  clearsilver
  seman
+
+Installation:
+ lemmatizer -> /var/www/cgi-bin/
+ lemmatizer.hdf -> /etc or $HOME of the user under which lemmatizer runs
+ *.cs -> the directory that is configured in lemmatizer.hdf
+ html/* -> /var/www/html/
+
+ The lemmatizer can be used with FCGI protocol as well as CGI.
