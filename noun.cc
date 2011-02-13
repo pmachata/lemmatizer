@@ -22,6 +22,7 @@
 
 #include <boost/format.hpp>
 #include <bitset>
+#include <iostream>
 
 noun_handler::noun_handler ()
   : pos_handler ("noun")
@@ -49,19 +50,33 @@ noun_handler::fill_hdf (CAgramtab *agramtab,
 
       gram_code_t gnumber = gm__invalid;
       gram_code_t gcase = gm__invalid;
+      bool indeclinable = false;
+      gram_code_t gender;
       std::vector<grammeme> grammemes = ac.grammemes ();
       for (std::vector<grammeme>::const_iterator gt = grammemes.begin ();
 	   gt != grammemes.end (); ++gt)
 	{
 	  gram_code_t code = gt->value_as<gram_code_t> ();
-	  extract_rus_number (gnumber, code);
-	  extract_rus_case (gcase, code);
+	  if (!extract_rus_number (gnumber, code)
+	      && !extract_rus_case (gcase, code))
+	    {
+	      if (code == gm_indeclinable)
+		indeclinable = true;
+	      else if (!extract_rus_gender (gender, code))
+		std::cerr << (boost::format ("Unhandled grammeme %s\n")
+			      % format_rus (code));
+	    }
 	}
 
       if (gnumber == -1)
 	throw std::runtime_error ("Can't determine number.");
       if (gcase == -1)
 	throw std::runtime_error ("Can't determine case.");
+
+      // For indeclinable nouns, Seman for some reason reports only
+      // vocative case.  Change it to nominative.
+      if (indeclinable && gcase == gm_vocative)
+	gcase = gm_nominative;
 
       std::string field = str (boost::format ("%s.%s")
 			       % format_rus (gnumber)

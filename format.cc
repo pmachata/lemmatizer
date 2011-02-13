@@ -134,10 +134,11 @@ format_rus (gram_code_t val)
       return "secondary";
     case gm_colloquial:
       return "colloquial";
+    case gm_indeclinable:
+      return "indeclinable";
 
     case gm_25:
     case gm_26:
-    case gm_0:
     case gm_abbr:
     case gm_patronymic:
     case gm_32:

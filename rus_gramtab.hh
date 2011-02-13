@@ -76,7 +76,7 @@ enum gram_code_t
     gm_26 = 26, //"пе"
     gm_active = 27,
     gm_passive = 28,
-    gm_0 = 29, // "0"
+    gm_indeclinable = 29,
     gm_abbr = 30, //"аббр"
     gm_patronymic = 31, //"отч" ???
     gm_32 = 32, //"лок"
