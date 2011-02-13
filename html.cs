@@ -19,7 +19,7 @@
 def:begin_html(word) ?><html>
 <head>
     <title>Лемматизатор: <?cs var:word ?></title>
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="/lemmatizer/style.css" />
 </head>
 <body>
 <?cs
