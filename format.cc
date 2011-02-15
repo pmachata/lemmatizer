@@ -48,8 +48,9 @@ format_rus (pos_code_t val)
       return "adv_participle";
     case pos_adj_participle:
       return "adj_participle";
+    case pos_pronominal_adjective:
+      return "pronominal_adjective";
 
-    case pos_4:
     case pos_5:
     case pos_6:
     case pos_7:

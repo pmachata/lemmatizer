@@ -24,7 +24,7 @@ enum pos_code_t
     pos_adjective = 1,
     pos_verb = 2,
     pos_pronoun = 3,
-    pos_4 = 4, //"МС-П"
+    pos_pronominal_adjective = 4,
     pos_5 = 5, //"МС-ПРЕДК"
     pos_6 = 6, //"ЧИСЛ"
     pos_7 = 7, //"ЧИСЛ-П"

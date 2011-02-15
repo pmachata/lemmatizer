@@ -55,6 +55,7 @@ pos_handler_map::pos_handler_map ()
   pos_handler const *adj = new adjective_handler ();
   insert (pos_adjective, adj);
   insert (pos_short_adjective, adj);
+  insert (pos_pronominal_adjective, adj);
 
   pos_handler const *simple = new simple_handler ();
   insert (pos_adverb, simple);
