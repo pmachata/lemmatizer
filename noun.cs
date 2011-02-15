@@ -63,7 +63,14 @@ call:html_properties(Form)
 
 <tr><td>пр.</td>
     <td><?cs call:html_variants(Form.singular.prepositional) ?></td>
-    <td><?cs call:html_variants(Form.plural.prepositional) ?></td></tr>
+    <td><?cs call:html_variants(Form.plural.prepositional) ?></td></tr><?cs
+
+if:subcount(Form.singular.vocative) ?>
+
+<tr><td>зв.</td>
+    <td><?cs call:html_variants(Form.singular.vocative) ?></td>
+    <td><?cs call:html_variants(Form.plural.vocative) ?></td></tr><?cs
+/if ?>
 </tbody>
 
 </table><?cs
