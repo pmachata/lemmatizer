@@ -1,8 +1,11 @@
 -*-org-*-
 * TODO
-** verbs don't emit adverbial particibles
-** nouns don't emit vocative case
-** html output is not standard-conforming
+** DONE verbs don't emit adverbial particibles
+   CLOSED: [2011-02-17 Чтв 23:09]
+** DONE nouns don't emit vocative case
+   CLOSED: [2011-02-17 Чтв 23:09]
+** DONE html output is not standard-conforming
+   CLOSED: [2011-02-17 Чтв 23:09]
    and in fact is completely broken, with multiple <html> and possibly
    multiple </html>
 ** noun gender may most likely differ per form
