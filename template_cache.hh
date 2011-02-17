@@ -21,8 +21,7 @@
 #include <cs/cs.h>
 #include <util/neo_files.h>
 
-// Throw std::runtime_error if ERR != NULL.
-void handle_neoerr (NEOERR *err);
+#include "main.hh"
 
 class template_cache
   : public std::vector<CSPARSE *>

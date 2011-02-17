@@ -15,6 +15,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "template_cache.hh"
+#include "main.hh"
 
 #include <boost/format.hpp>
 #include <cassert>
@@ -22,24 +23,9 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <sys/inotify.h>
 #include <unistd.h>
-
-void
-handle_neoerr (NEOERR *err)
-{
-  if (err != NULL)
-    {
-      STRING str;
-      string_init (&str);
-      nerr_error_string (err, &str);
-      std::string what = str.buf;
-      string_clear (&str);
-      throw std::runtime_error (what);
-    }
-}
 
 template_cache::template_cache ()
   : _m_inotify_fd (inotify_init1 (IN_CLOEXEC | IN_NONBLOCK))

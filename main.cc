@@ -18,23 +18,38 @@
 #include <iconv.h>
 #include <iostream>
 #include <stdexcept>
-#include <wordexp.h>
+#include <cerrno>
 
 #include <AgramtabLib/RusGramTab.h>
 
 #include <cs/cs.h>
-#include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 
-#include "forms.hh"
-#include "lemmatize.hh"
-#include "part_of_speech.hh"
-#include "pos_handler.hh"
 #include "backend.hh"
 #include "fcgi_backend.hh"
+#include "format.hh"
+#include "forms.hh"
+#include "hdf.hh"
+#include "lemmatize.hh"
+#include "main.hh"
+#include "part_of_speech.hh"
+#include "pos_handler.hh"
 #include "rus_gramtab.hh"
 #include "template_cache.hh"
-#include "format.hh"
+
+void
+handle_neoerr (NEOERR *err)
+{
+  if (err != NULL)
+    {
+      STRING str;
+      string_init (&str);
+      nerr_error_string (err, &str);
+      std::string what = str.buf;
+      string_clear (&str);
+      throw std::runtime_error (what);
+    }
+}
 
 void
 fail (std::string const &reason)
@@ -63,88 +78,6 @@ convert (std::string const &word, iconv_t ic_d)
 
   return outbuf;
 }
-
-class hdf
-{
-  HDF *_m_hdf;
-
-public:
-  hdf ()
-  {
-    handle_neoerr (hdf_init (&_m_hdf));
-  }
-
-  ~hdf ()
-  {
-    hdf_destroy (&_m_hdf);
-  }
-
-  operator HDF* ()
-  {
-    return _m_hdf;
-  }
-
-  HDF *
-  node (char const *name)
-  {
-    HDF *node;
-    handle_neoerr (hdf_get_node (*this, name, &node));
-    return node;
-  }
-};
-
-class default_hdf
-  : public hdf
-{
-  bool
-  get_home (boost::filesystem::path &ret)
-  {
-    wordexp_t we;
-    int err = wordexp ("~", &we, WRDE_NOCMD);
-    if (err == 0)
-      {
-	assert (we.we_wordc > 0);
-	ret = we.we_wordv[0];
-      }
-
-    wordfree (&we);
-    if (err != 0)
-      std::cerr << "Unknown user home directory." << std::endl;
-
-    return err == 0;
-  }
-
-  NEOERR *
-  try_read_config (boost::filesystem::path dir)
-  {
-    dir /= "lemmatizer.hdf";
-    NEOERR *ret = hdf_read_file (*this, dir.string ().c_str ());
-    if (ret == NULL)
-      std::cerr << boost::format ("Config loaded from %s\n") % dir;
-    return ret;
-  }
-
-public:
-  default_hdf ()
-  {
-    // Look for config file in current directory, then in user's home
-    // directory and then in system-wide /etc/ directory.
-
-    if (try_read_config (boost::filesystem::current_path ()) == NULL)
-      return;
-
-    boost::filesystem::path pth;
-    NEOERR *err;
-    if (get_home (pth)
-	&& (err = try_read_config (pth / ".lemmatizer")) == NULL)
-      return;
-
-    if ((err = try_read_config ("/etc/")) == NULL)
-      return;
-
-    handle_neoerr (err);
-  }
-};
 
 // Use this character as an accent mark.  This must be a wchar_t
 // constant.  In non-unicode environment, this should be set to L"'"
