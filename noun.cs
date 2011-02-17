@@ -18,10 +18,7 @@
 include:"header.cs" ?><?cs
 include:"html.cs" ?><?cs
 include:"pos.cs" ?>
-<h1><?cs call:pos_russian(Form.pos) ?>: <?cs
-alt:Form.singular.nominative.0 ?><?cs
-  var:Form.plural.nominative.0 ?><?cs
-/alt ?></h1>
+<h1><?cs call:pos_russian(Form.pos) ?>: <?cs var:Form.source ?></h1>
 
 <h2>Свойства</h2>
 <table>

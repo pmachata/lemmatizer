@@ -16,8 +16,9 @@
 # <http://www.gnu.org/licenses/>. ?><?cs
 
 include:"header.cs" ?><?cs
-include:"html.cs" ?>
-<h1>Прилагательное: <?cs var:Form.positive.masculine.nominative.0 ?></h1>
+include:"html.cs" ?><?cs
+include:"pos.cs" ?>
+<h1><?cs call:pos_russian(Form.pos) ?>: <?cs var:Form.source ?></h1>
 
 <h2>Свойства</h2>
 <table>

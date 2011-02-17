@@ -17,7 +17,7 @@
 
 include:"header.cs" ?><?cs
 include:"html.cs" ?>
-<h1>Глагол: <?cs var:Form.infinitive.0 ?></h1>
+<h1>Глагол: <?cs var:Form.source ?></h1>
 
 <h2>Свойства</h2>
 <table>
