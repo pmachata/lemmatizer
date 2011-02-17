@@ -23,8 +23,7 @@ include:"html.cs" ?>
 <table>
 <tbody><?cs
 call:html_properties(Form)
-?><tr><td>инфинитив</td><td><?cs call:out_variants(Form.infinitive) ?></td></tr>
-</tbody>
+?></tbody>
 </table>
 
 <h2>Таблица склонений</h2>

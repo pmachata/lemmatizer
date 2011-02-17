@@ -12,3 +12,9 @@
    e.g. александр gives александр, александрович and александровна.
    путин gives both путин and путина.  It's hard to imagine that the
    gender doesn't change here per-form.
+** rendering of numbers is not optimal
+   right now small numbers work nice, they have all the forms
+   correctly tabulatized.  For higher numbers, like 5, where genders
+   are not mentioned, the system assumes they are plural, and renders
+   the table nonsensically.  Really we would like to render gendered
+   numbers differently from those that have no gender.
