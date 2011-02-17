@@ -24,6 +24,7 @@
 
 #include <cs/cs.h>
 #include <boost/format.hpp>
+#include <boost/program_options.hpp>
 
 #include "backend.hh"
 #include "fcgi_backend.hh"
@@ -279,25 +280,45 @@ public:
 	}
     return 0;
   }
-
-  int
-  run ()
-  {
-    console_backend back (std::cin, std::cout);
-    return loop (&back);
-  }
-
-  int
-  fcgi_run ()
-  {
-    fcgi_backend back;
-    return loop (&back);
-  }
 };
+
+namespace po = boost::program_options;
 
 int main(int argc, char **argv)
 {
   setlocale (LC_ALL, "");
-  std::cerr << "LC_ALL=" << setlocale (LC_ALL, NULL) << std::endl;
-  return lemmatizer_app ().fcgi_run ();
+  //std::cerr << "LC_ALL=" << setlocale (LC_ALL, NULL) << std::endl;
+
+  po::options_description desc ("LemmatizerWeb");
+  desc.add_options()
+    ("help", "show this help message")
+    ("io", po::value<std::string>(), "set IO backend {fcgi|console}")
+    ;
+
+  po::variables_map vm;
+  po::store (po::parse_command_line (argc, argv, desc), vm);
+  po::notify (vm);
+
+  if (vm.count ("help"))
+    {
+      std::cout << desc << "\n";
+      return 1;
+    }
+
+  backend *back = NULL;
+  std::string backend = vm.count ("io") ? vm["io"].as<std::string> () : "fcgi";
+  if (backend == "console")
+    back = new console_backend (std::cin, std::cout);
+  else if (backend == "fcgi")
+    back = new fcgi_backend ();
+  else
+    {
+      std::cerr << boost::format ("Invalid IO backend `%s'.\n") % backend;
+      return 1;
+    }
+
+  int ret = lemmatizer_app ().loop (back);
+  delete back;
+
+  return ret;
 }
