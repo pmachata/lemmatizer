@@ -44,7 +44,25 @@ lemmatize::forms::begin () const
 lemmatize::forms::const_iterator
 lemmatize::forms::end () const
 {
-  return const_iterator (*this, _m_paradigm.GetCount ());
+  return const_iterator (*this, size ());
+}
+
+int
+lemmatize::forms::homonym_weight () const
+{
+  return _m_paradigm.GetHomonymWeight ();
+}
+
+int
+lemmatize::forms::word_weight () const
+{
+  return _m_paradigm.GetWordWeight ();
+}
+
+size_t
+lemmatize::forms::size () const
+{
+  return _m_paradigm.GetCount ();
 }
 
 
