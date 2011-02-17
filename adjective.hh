@@ -24,7 +24,7 @@ class adjective_handler
   : public pos_handler
 {
 public:
-  adjective_handler ();
+  explicit adjective_handler (id_allocator &parent);
   virtual void fill_hdf (CAgramtab *agramtab,
 			 lemmatize::const_iterator const &it,
 			 hdf_data_map &data) const;

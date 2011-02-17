@@ -23,8 +23,8 @@
 #include <boost/format.hpp>
 #include <iostream>
 
-verb_handler::verb_handler ()
-  : pos_handler ("verb")
+verb_handler::verb_handler (id_allocator &parent)
+  : pos_handler (parent, "verb")
 {
 }
 

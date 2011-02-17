@@ -22,9 +22,11 @@
 #include <util/neo_files.h>
 
 #include "main.hh"
+#include "id.hh"
 
 class template_cache
   : public std::vector<CSPARSE *>
+  , public id_allocator
 {
   typedef std::vector<CSPARSE *> super_t;
 
@@ -43,8 +45,8 @@ class template_cache
 
   struct wd_to_id_s
   {
-    ssize_t id;
-    ssize_t next;
+    size_t id;
+    size_t next;
 
     wd_to_id_s () : id (-1), next (-1) {}
   };
@@ -59,16 +61,16 @@ class template_cache
 
   // First free slot in _m_collision.  NEXT of that slot points to
   // next free slot.  -1 for no free slot.
-  ssize_t _m_collision_free;
+  size_t _m_collision_free;
 
-  ssize_t release (wd_to_id_s &slot, ssize_t next = -1);
+  size_t release (wd_to_id_s &slot, size_t next = (size_t)-1);
 
 public:
   template_cache ();
   ~template_cache ();
 
-  CSPARSE *add (HDF *hdf, int id, char const *template_name);
-  CSPARSE *get (int id);
+  CSPARSE *add (HDF *hdf, size_t id, char const *template_name);
+  CSPARSE *get (size_t id);
 };
 
 #endif /* _TEMPLATE_CACHE_H_ */

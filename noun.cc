@@ -24,8 +24,8 @@
 #include <bitset>
 #include <iostream>
 
-noun_handler::noun_handler ()
-  : pos_handler ("noun")
+noun_handler::noun_handler (id_allocator &parent)
+  : pos_handler (parent, "noun")
 {}
 
 void

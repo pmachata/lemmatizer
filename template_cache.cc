@@ -27,6 +27,8 @@
 #include <sys/inotify.h>
 #include <unistd.h>
 
+#undef LOG
+
 template_cache::template_cache ()
   : _m_inotify_fd (inotify_init1 (IN_CLOEXEC | IN_NONBLOCK))
   , _m_collision_free (-1)
@@ -53,11 +55,10 @@ template_cache::~template_cache ()
 }
 
 CSPARSE *
-template_cache::add (HDF *hdf, int id, char const *template_name)
+template_cache::add (HDF *hdf, size_t id, char const *template_name)
 {
-  assert (id >= 0);
-  if ((size_t)id >= size ())
-    resize ((size_t)id + 1);
+  if (id >= size ())
+    resize (id + 1);
   assert (at (id) == NULL);
 
   int wd = -1;
@@ -88,19 +89,19 @@ template_cache::add (HDF *hdf, int id, char const *template_name)
 
 	  // If this slot is already used, it means that the template
 	  // is used under more than one ID.
-	  if (_m_wd_to_id[wd].id == -1)
+	  if (_m_wd_to_id[wd].id == (size_t)-1)
 	    _m_wd_to_id[wd].id = id;
 	  else
 	    {
 	      // Find first free collision node.
-	      if (_m_collision_free == -1)
+	      if (_m_collision_free == (size_t)-1)
 		{
 		  _m_collision.push_back (wd_to_id_s ());
 		  _m_collision_free = _m_collision.size () - 1;
 		}
-	      ssize_t slot_n = _m_collision_free;
+	      size_t slot_n = _m_collision_free;
 	      wd_to_id_s &slot = _m_collision[slot_n];
-	      assert (slot.id == -1);
+	      assert (slot.id == (size_t)-1);
 	      _m_collision_free = slot.next;
 
 	      slot.next = _m_wd_to_id[wd].next;
@@ -110,7 +111,7 @@ template_cache::add (HDF *hdf, int id, char const *template_name)
 
 	  std::ostringstream os;
 	  os << _m_wd_to_id[wd].id;
-	  for (ssize_t i = _m_wd_to_id[wd].next; i != -1;
+	  for (size_t i = _m_wd_to_id[wd].next; i != (size_t)-1;
 	       i = _m_collision[i].next)
 	    os << boost::format (",(%d)%d") % i % _m_collision[i].id;
 #ifdef LOG
@@ -128,8 +129,8 @@ template_cache::add (HDF *hdf, int id, char const *template_name)
   return get (id);
 }
 
-ssize_t
-template_cache::release (wd_to_id_s &slot, ssize_t next)
+size_t
+template_cache::release (wd_to_id_s &slot, size_t next)
 {
 #ifdef LOG
   std::cerr << (boost::format ("Drop template #%d from cache.\n")
@@ -140,17 +141,17 @@ template_cache::release (wd_to_id_s &slot, ssize_t next)
   (*this)[slot.id] = NULL;
 
   // We use IN_ONESHOT, so this wd is not valid anymore.
-  slot.id = -1;
-  ssize_t ret = slot.next;
+  slot.id = (size_t)-1;
+  size_t ret = slot.next;
   slot.next = next;
   return ret;
 }
 
 
 CSPARSE *
-template_cache::get (int id)
+template_cache::get (size_t id)
 {
-  if (id < 0 || (size_t)id >= size ())
+  if (id >= size ())
     return NULL;
 
   if (_m_inotify_fd >= 0)
@@ -194,15 +195,15 @@ template_cache::get (int id)
 	  }
 
 	// Return the whole chain to free store.
-	for (ssize_t i = release (_m_wd_to_id[evt.wd]); i != -1; )
+	for (size_t i = release (_m_wd_to_id[evt.wd]); i != (size_t)-1; )
 	  {
-	    ssize_t next = release (_m_collision[i], _m_collision_free);
+	    size_t next = release (_m_collision[i], _m_collision_free);
 	    _m_collision_free = i;
 	    i = next;
 	  }
 
 	std::ostringstream os;
-	for (ssize_t i = _m_collision_free; i != -1;
+	for (size_t i = _m_collision_free; i != (size_t)-1;
 	     i = _m_collision[i].next)
 	  os << "," << i;
 #ifdef LOG

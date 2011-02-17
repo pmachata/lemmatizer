@@ -22,8 +22,8 @@
 #include <boost/format.hpp>
 #include <iostream>
 
-number_handler::number_handler ()
-  : pos_handler ("number")
+number_handler::number_handler (id_allocator &parent)
+  : pos_handler (parent, "number")
 {
 }
 

@@ -24,6 +24,7 @@
 #include <AgramtabLib/agramtab_.h>
 
 #include "lemmatize.hh"
+#include "id.hh"
 
 // For what should be entered to HDF.  That's:
 //  key -> [(word, accent position)]
@@ -33,11 +34,13 @@ typedef std::map<std::string,
 class pos_handler
 {
   char const *_m_name;
+  size_t _m_id;
 
 public:
-  explicit pos_handler (char const *name);
+  explicit pos_handler (id_allocator &parent, char const *name);
 
   char const *template_name () const;
+  size_t id () const { return _m_id; }
 
   virtual void fill_hdf (CAgramtab *agramtab,
 			 lemmatize::const_iterator const &it,
@@ -47,10 +50,11 @@ public:
 class pos_handler_map
   : private std::vector<pos_handler const *>
 {
+  pos_handler *_m_default;
   void insert (int pos, pos_handler const *handler);
 
 public:
-  pos_handler_map ();
+  explicit pos_handler_map (id_allocator &id_a);
   ~pos_handler_map ();
   virtual pos_handler const *get_handler (int pos);
 };

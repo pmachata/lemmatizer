@@ -92,9 +92,10 @@ class lemmatizer_app
   CAgramtab *_m_agramtab;
   iconv_t _m_iconv_to;
   iconv_t _m_iconv_from;
-  pos_handler_map _m_handlers;
   template_cache _m_templates;
+  pos_handler_map _m_handlers;
   default_hdf _m_hdf;
+  size_t _m_page_id;
   HDF *_m_app_hdf; // Sub-node of _m_hdf holding app data.
 
   template <class T>
@@ -103,6 +104,33 @@ class lemmatizer_app
     if (retval == (T)-1)
       fail (reason);
     return retval;
+  }
+
+  CSPARSE *
+  get_template (size_t id, char const *fn)
+  {
+    CSPARSE *tmpl = _m_templates.get (id);
+    if (tmpl == NULL)
+      {
+	std::string file_name = fn;
+	file_name += ".cs";
+	try
+	  {
+	    tmpl = _m_templates.add (_m_hdf, id,
+				     file_name.c_str ());
+	    if (tmpl == NULL)
+	      throw std::runtime_error ("Unknown reason.");
+	  }
+	catch (std::runtime_error const &err)
+	  {
+	    std::cerr << (boost::format
+			  ("Couldn't load the template `%s': %s.\n")
+			  % file_name % err.what ());
+	    return NULL;
+	  }
+	assert (tmpl != NULL);
+      }
+    return tmpl;
   }
 
 public:
@@ -118,6 +146,8 @@ public:
 
     , _m_iconv_from (check (iconv_open ("utf-8", "windows-1251"),
 			    "iconv_open from"))
+    , _m_handlers (_m_templates)
+    , _m_page_id (_m_templates.get_id ())
     , _m_app_hdf (_m_hdf.node ("lemmatizer"))
   {
     string err;
@@ -152,38 +182,11 @@ public:
     return s;
   }
 
-  CSPARSE *
-  get_template (int id, char const *fn)
-  {
-    CSPARSE *tmpl = _m_templates.get (id);
-    if (tmpl == NULL)
-      {
-	std::string file_name = fn;
-	file_name += ".cs";
-	try
-	  {
-	    tmpl = _m_templates.add (_m_hdf, id,
-				     file_name.c_str ());
-	    if (tmpl == NULL)
-	      throw std::runtime_error ("Unknown reason.");
-	  }
-	catch (std::runtime_error const &err)
-	  {
-	    std::cerr << (boost::format
-			  ("Couldn't load the template `%s': %s.\n")
-			  % file_name % err.what ());
-	    return NULL;
-	  }
-	assert (tmpl != NULL);
-      }
-    return tmpl;
-  }
-
   void
   process (std::string const &line, backend *back)
   {
-    CSPARSE *page = get_template (page_main, "page");
     std::string contents;
+    CSPARSE *page = get_template (_m_page_id, "page");
 
     struct cb
     {
@@ -226,7 +229,8 @@ public:
 	    continue;
 	  }
 
-	CSPARSE *tmpl = get_template (pos.number (), handler->template_name ());
+	CSPARSE *tmpl = get_template (handler->id (),
+				      handler->template_name ());
 	if (tmpl == NULL)
 	  continue;
 

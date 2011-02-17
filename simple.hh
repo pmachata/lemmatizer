@@ -23,7 +23,7 @@ class simple_handler
   : public pos_handler
 {
 public:
-  simple_handler ();
+  explicit simple_handler (id_allocator &parent);
 
   virtual void fill_hdf (CAgramtab *agramtab,
 			 lemmatize::const_iterator const &it,

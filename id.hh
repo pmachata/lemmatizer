@@ -14,23 +14,22 @@
 // License along with this program.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "simple.hh"
-#include "forms.hh"
-#include "format.hh"
-#include "part_of_speech.hh"
+#ifndef _ID_H_
+#define _ID_H_
 
-simple_handler::simple_handler (id_allocator &parent)
-  : pos_handler (parent, "simple")
+class id_allocator
 {
-}
+  size_t _m_last_id;
 
-void
-simple_handler::fill_hdf (CAgramtab *agramtab,
-			 lemmatize::const_iterator const &it,
-			 hdf_data_map &data) const
-{
-  lemmatize::forms forms = it.forms ();
-  for (lemmatize::forms::const_iterator ft = forms.begin ();
-       ft != forms.end (); ++ft)
-    data["word"].push_back (std::make_pair (*ft, ft.accent ()));
-}
+public:
+  id_allocator ()
+    : _m_last_id (0)
+  {}
+
+  size_t get_id ()
+  {
+    return _m_last_id++;
+  }
+};
+
+#endif /* _ID_H_ */

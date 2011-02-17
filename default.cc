@@ -21,8 +21,8 @@
 #include "format.hh"
 #include "adjective.hh"
 
-default_handler::default_handler ()
-  : pos_handler ("default")
+default_handler::default_handler (id_allocator &parent)
+  : pos_handler (parent, "default")
 {
 }
 

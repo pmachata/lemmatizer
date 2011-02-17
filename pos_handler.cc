@@ -22,8 +22,9 @@
 #include "simple.hh"
 #include "verb.hh"
 
-pos_handler::pos_handler (char const *name)
+pos_handler::pos_handler (id_allocator &parent, char const *name)
   : _m_name (name)
+  , _m_id (parent.get_id ())
 {}
 
 char const *
@@ -43,32 +44,33 @@ pos_handler_map::insert (int pos, pos_handler const *handler)
   (*this)[idx] = handler;
 }
 
-pos_handler_map::pos_handler_map ()
+pos_handler_map::pos_handler_map (id_allocator &id_a)
+  : _m_default (new default_handler (id_a))
 {
-  pos_handler const *noun = new noun_handler ();
+  pos_handler const *noun = new noun_handler (id_a);
   insert (pos_noun, noun);
   insert (pos_pronoun, noun);
 
-  pos_handler const *verb = new verb_handler ();
+  pos_handler const *verb = new verb_handler (id_a);
   insert (pos_verb, verb);
   insert (pos_infinitive, verb);
   insert (pos_adj_participle, verb);
   insert (pos_adv_participle, verb);
 
-  pos_handler const *adj = new adjective_handler ();
+  pos_handler const *adj = new adjective_handler (id_a);
   insert (pos_adjective, adj);
   insert (pos_short_adjective, adj);
   insert (pos_pronominal_adjective, adj);
   insert (pos_ordinal_number, adj);
 
-  pos_handler const *simple = new simple_handler ();
+  pos_handler const *simple = new simple_handler (id_a);
   insert (pos_adverb, simple);
   insert (pos_interjection, simple);
   insert (pos_transition_word, simple);
   insert (pos_particle, simple);
   insert (pos_conjunction, simple);
 
-  pos_handler const *number = new number_handler ();
+  pos_handler const *number = new number_handler (id_a);
   insert (pos_number, number);
 }
 
@@ -83,17 +85,18 @@ pos_handler_map::~pos_handler_map ()
 	delete *it;
       last = *it;
     }
+
+  delete _m_default;
 }
 
 pos_handler const *
 pos_handler_map::get_handler (int pos)
 {
-  static default_handler const def;
   if (pos < 0 || (size_t)pos >= size ())
     return NULL;
 
   if (pos_handler const *ret = operator[] (pos))
     return ret;
   else
-    return &def;
+    return _m_default;
 }

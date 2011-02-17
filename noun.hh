@@ -23,7 +23,7 @@ class noun_handler
   : public pos_handler
 {
 public:
-  noun_handler ();
+  explicit noun_handler (id_allocator &parent);
 
   virtual void fill_hdf (CAgramtab *agramtab,
 			 lemmatize::const_iterator const &it,

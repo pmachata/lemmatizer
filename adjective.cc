@@ -20,8 +20,8 @@
 
 #include <sstream>
 
-adjective_handler::adjective_handler ()
-  : pos_handler ("adjective")
+adjective_handler::adjective_handler (id_allocator &parent)
+  : pos_handler (parent, "adjective")
 {}
 
 std::string
