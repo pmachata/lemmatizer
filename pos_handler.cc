@@ -17,6 +17,7 @@
 #include "adjective.hh"
 #include "default.hh"
 #include "noun.hh"
+#include "number.hh"
 #include "pos_handler.hh"
 #include "simple.hh"
 #include "verb.hh"
@@ -58,6 +59,7 @@ pos_handler_map::pos_handler_map ()
   insert (pos_adjective, adj);
   insert (pos_short_adjective, adj);
   insert (pos_pronominal_adjective, adj);
+  insert (pos_ordinal_number, adj);
 
   pos_handler const *simple = new simple_handler ();
   insert (pos_adverb, simple);
@@ -65,6 +67,9 @@ pos_handler_map::pos_handler_map ()
   insert (pos_transition_word, simple);
   insert (pos_particle, simple);
   insert (pos_conjunction, simple);
+
+  pos_handler const *number = new number_handler ();
+  insert (pos_number, number);
 }
 
 pos_handler_map::~pos_handler_map ()

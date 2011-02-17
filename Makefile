@@ -32,10 +32,10 @@ lemmatizer: override LDFLAGS += -lLemmatizerrsh -lAgramtabrsh -lGraphanrsh 	\
 	-lStructDictrsh -lMorphWizardrsh -lneo_cs -lneo_utl -lfcgi \
 	-lboost_filesystem -lboost_system -lboost_program_options
 hdf.o main.o template_cache.o: CXXPPFLAGS += -I/usr/include/ClearSilver
-lemmatizer: adjective.o backend.o fcgi_backend.o format.o forms.o	\
-	gramcodes.o hdf.o lemmatize.o main.o noun.o part_of_speech.o	\
-	pos_handler.o rus_gender.o rus_gramtab.o simple.o		\
-	template_cache.o url_decode.o verb.o
+lemmatizer: adjective.o backend.o default.o fcgi_backend.o format.o	\
+	forms.o gramcodes.o hdf.o lemmatize.o main.o noun.o number.o	\
+	part_of_speech.o pos_handler.o rus_gender.o rus_gramtab.o	\
+	simple.o template_cache.o url_decode.o verb.o
 
 -include $(DEPFILES)
 

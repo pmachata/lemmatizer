@@ -88,7 +88,10 @@ def:adjective_table (sub) ?><table>
     <td><?cs call:html_variants(sub.feminine.dative) ?></td>
     <td><?cs call:html_variants(sub.neuter.dative) ?></td>
     <td><?cs call:html_variants(sub.plural.dative) ?></td></tr>
+<?cs
 
+if:subcount(sub.masculine.accusative.animate)
+   || subcount(sub.masculine.accusative.inanimate) ?>
 <tr><td>в.од.</td>
     <td><?cs call:html_variants(sub.masculine.accusative.animate) ?></td>
     <td><?cs call:html_variants(sub.feminine.accusative) ?></td>
@@ -99,7 +102,14 @@ def:adjective_table (sub) ?><table>
     <td><?cs call:html_variants(sub.masculine.accusative.inanimate) ?></td>
     <td><?cs call:html_variants(sub.feminine.accusative) ?></td>
     <td><?cs call:html_variants(sub.neuter.accusative) ?></td>
-    <td><?cs call:html_variants(sub.plural.accusative.inanimate) ?></td></tr>
+    <td><?cs call:html_variants(sub.plural.accusative.inanimate) ?></td></tr><?cs
+else ?>
+<tr><td>в.</td>
+    <td><?cs call:html_variants(sub.masculine.accusative) ?></td>
+    <td><?cs call:html_variants(sub.feminine.accusative) ?></td>
+    <td><?cs call:html_variants(sub.neuter.accusative) ?></td>
+    <td><?cs call:html_variants(sub.plural.accusative) ?></td></tr><?cs
+/if ?>
 
 <tr><td>тв.</td>
     <td><?cs call:html_variants(sub.masculine.instrumental) ?></td>

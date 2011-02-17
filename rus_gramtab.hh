@@ -26,8 +26,8 @@ enum pos_code_t
     pos_pronoun = 3,
     pos_pronominal_adjective = 4,
     pos_negative_pronoun = 5,
-    pos_6 = 6, //"ЧИСЛ"
-    pos_7 = 7, //"ЧИСЛ-П"
+    pos_number = 6, //"ЧИСЛ"
+    pos_ordinal_number = 7, //"ЧИСЛ-П"
     pos_adverb = 8, //"Н", // 8
     pos_predicative = 9,
     pos_preposition = 10,
