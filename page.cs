@@ -13,17 +13,12 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with this program.  If not, see
-# <http://www.gnu.org/licenses/>. ?><?cs
-
-include:"header.cs" ?><?cs
-include:"html.cs" ?><?cs
-include:"pos.cs" ?>
-<h1><?cs call:pos_russian(Form.pos) ?>: <?cs var:Form.word.0 ?></h1>
-
-<h2>Свойства</h2>
-<table>
-<tbody><?cs
-call:html_properties(Form)
-?><tr><td>слово</td><td><?cs call:out_variants(Form.word) ?></td></tr>
-</tbody>
-</table>
+# <http://www.gnu.org/licenses/>. ?><html>
+<head>
+    <title>Лемматизатор: <?cs var:page.word ?></title>
+    <link rel="stylesheet" type="text/css" href="/lemmatizer/style.css" />
+</head>
+<body>
+<?cs var:page.contents ?>
+</body>
+</html>

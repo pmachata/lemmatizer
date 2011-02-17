@@ -152,9 +152,62 @@ public:
     return s;
   }
 
+  CSPARSE *
+  get_template (int id, char const *fn)
+  {
+    CSPARSE *tmpl = _m_templates.get (id);
+    if (tmpl == NULL)
+      {
+	std::string file_name = fn;
+	file_name += ".cs";
+	try
+	  {
+	    tmpl = _m_templates.add (_m_hdf, id,
+				     file_name.c_str ());
+	    if (tmpl == NULL)
+	      throw std::runtime_error ("Unknown reason.");
+	  }
+	catch (std::runtime_error const &err)
+	  {
+	    std::cerr << (boost::format
+			  ("Couldn't load the template `%s': %s.\n")
+			  % file_name % err.what ());
+	    return NULL;
+	  }
+	assert (tmpl != NULL);
+      }
+    return tmpl;
+  }
+
   void
   process (std::string const &line, backend *back)
   {
+    CSPARSE *page = get_template (page_main, "page");
+    std::string contents;
+
+    struct cb
+    {
+      static NEOERR *
+      backend_render (void *data, char *str)
+      {
+	backend *b = (backend *)data;
+	bool result = b->render (str);
+
+	if (result)
+	  return NULL;
+	else
+	  return nerr_raise (NERR_PARSE, "Backend render failed.");
+      }
+
+      static NEOERR *
+      append_contents (void *data, char *str)
+      {
+	std::string *contents = (std::string *)data;
+	*contents += str;
+	return NULL;
+      }
+    };
+
     lemmatize lem (line, _m_lemmatizer, _m_agramtab);
     for (lemmatize::const_iterator it = lem.begin ();
 	 it != lem.end (); ++it)
@@ -173,28 +226,9 @@ public:
 	    continue;
 	  }
 
-	CSPARSE *tmpl = _m_templates.get (pos.number ());
+	CSPARSE *tmpl = get_template (pos.number (), handler->template_name ());
 	if (tmpl == NULL)
-	  {
-	    std::string file_name = handler->template_name ();
-	    file_name += ".cs";
-	    try
-	      {
-		tmpl = _m_templates.add (_m_hdf, pos.number (),
-					 file_name.c_str ());
-		if (tmpl == NULL)
-		  throw std::runtime_error ("Unknown reason.");
-	      }
-	    catch (std::runtime_error const &err)
-	      {
-		std::cerr << "Couldn't load the template \""
-			  << file_name << ": " << err.what ()
-			  << "." << std::endl;
-		continue;
-	      }
-	    assert (tmpl != NULL);
-	  }
-	assert (tmpl != NULL);
+	  continue;
 
 	hdf_data_map data;
 	handler->fill_hdf (_m_agramtab, it, data);
@@ -226,22 +260,14 @@ public:
 	if (hdf_get_int_value (_m_app_hdf, "dump", 0))
 	  handle_neoerr (hdf_dump (_m_hdf.node ("Form"), "Form"));
 
-	struct _ {
-	  static NEOERR *render_cb (void *data, char *str)
-	  {
-	    backend *b = (backend *)data;
-	    bool result = b->render (str);
-
-	    if (result)
-	      return NULL;
-	    else
-	      return nerr_raise (NERR_PARSE, "Backend render failed.");
-	  }
-	};
-
-	handle_neoerr (cs_render (tmpl, back, &_::render_cb));
+	handle_neoerr (cs_render (tmpl, &contents, &cb::append_contents));
 	handle_neoerr (hdf_remove_tree (_m_hdf, "Form"));
       }
+
+    handle_neoerr (hdf_set_value (_m_hdf, "page.contents", contents.c_str ()));
+    handle_neoerr (hdf_set_value (_m_hdf, "page.word", show (line).c_str ()));
+    handle_neoerr (cs_render (page, back, &cb::backend_render));
+    handle_neoerr (hdf_remove_tree (_m_hdf, "page"));
   }
 
   int

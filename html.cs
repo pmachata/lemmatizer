@@ -15,19 +15,6 @@
 # License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>. ?><?cs
 
-
-def:begin_html(word) ?><html>
-<head>
-    <title>Лемматизатор: <?cs var:word ?></title>
-    <link rel="stylesheet" type="text/css" href="/lemmatizer/style.css" />
-</head>
-<body>
-<?cs
-/def ?><?cs
-
-def:end_html () ?></body></html><?cs
-/def ?><?cs
-
 def:conj_table (all, sub) ?><table>
 <thead>
 <tr><td>&nbsp;</td><td>ед</td><td>мн</td></tr>

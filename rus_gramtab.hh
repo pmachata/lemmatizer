@@ -44,6 +44,13 @@ enum pos_code_t
     pos_infinitive = 21,
   };
 
+// This extends the pos_code_t above.  It's used as IDs of templates
+// other than POS templates.
+enum page_code_t
+  {
+    page_main = 22,
+  };
+
 enum gram_code_t
   {
     gm__invalid = -1,

@@ -17,10 +17,7 @@
 
 include:"header.cs" ?><?cs
 include:"html.cs" ?><?cs
-include:"pos.cs" ?><?cs
-
-call:begin_html(Form.singular.nominative.0) ?>
-
+include:"pos.cs" ?>
 <h1><?cs call:pos_russian(Form.pos) ?>: <?cs
 alt:Form.singular.nominative.0 ?><?cs
   var:Form.plural.nominative.0 ?><?cs
@@ -73,6 +70,4 @@ if:subcount(Form.singular.vocative) ?>
 /if ?>
 </tbody>
 
-</table><?cs
-
-call:end_html() ?>
+</table>

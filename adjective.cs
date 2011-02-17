@@ -16,10 +16,7 @@
 # <http://www.gnu.org/licenses/>. ?><?cs
 
 include:"header.cs" ?><?cs
-include:"html.cs" ?><?cs
-
-call:begin_html(Form.positive.masculine.nominative.0) ?>
-
+include:"html.cs" ?>
 <h1>Прилагательное: <?cs var:Form.positive.masculine.nominative.0 ?></h1>
 
 <h2>Свойства</h2>

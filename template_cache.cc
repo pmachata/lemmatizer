@@ -69,8 +69,9 @@ template_cache::add (HDF *hdf, int id, char const *template_name)
 			     IN_DELETE_SELF | IN_MODIFY
 			     | IN_MOVE_SELF | IN_ONESHOT);
       if (wd < 0)
-	std::cerr << "Warning: Unable to add inotify watch: "
-		  << strerror (errno) << "." << std::endl;
+	std::cerr << (boost::format
+		      ("Warning: Unable to add inotify watch: %s.\n")
+		      % strerror (errno));
       else
 	{
 	  size_t wd2 = (size_t)wd;

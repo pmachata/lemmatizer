@@ -16,10 +16,7 @@
 # <http://www.gnu.org/licenses/>. ?><?cs
 
 include:"header.cs" ?><?cs
-include:"html.cs" ?><?cs
-
-call:begin_html(Form.infinitive.0) ?>
-
+include:"html.cs" ?>
 <h1>Глагол: <?cs var:Form.infinitive.0 ?></h1>
 
 <h2>Свойства</h2>
