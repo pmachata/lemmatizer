@@ -65,15 +65,24 @@ call:adjective_table(Form.adj_participle.passive.present.positive) ?><?cs
 if:subcount(Form.adj_participle.passive.past.positive) ?>
 <h2>Страдательное причастие прошлого времени</h2><?cs
 call:adjective_table(Form.adj_participle.passive.past.positive) ?><?cs
+/if ?><?cs
+
+if:subcount(Form.adv_participle) ?>
+<h2>Деепричастия</h2>
+
+<table>
+ <thead>
+  <tr><td>время</td><td>форма</td></tr>
+ </thead>
+ <tbody><?cs
+if:subcount(Form.adv_participle.past) ?>
+    <tr><td>прошлое</td>
+        <td><?cs call:html_variants(Form.adv_participle.past) ?></td></tr><?cs
+/if ?><?cs
+if:subcount(Form.adv_participle.present) ?>
+    <tr><td>настоящее</td>
+        <td><?cs call:html_variants(Form.adv_participle.present) ?></td></tr><?cs
 /if ?>
-
-
-<?cs
-
-if:Form["нст,дст"].0 || Form["прш,дст"].0
-?>деепричастие
-<?cs if:Form["нст,дст"].0
-?>наст.:	<?cs call:out_variants(Form["нст,дст"]) ?>
-<?cs /if ?><?cs if:Form["прш,дст"].0
-?>прош.:	<?cs call:out_variants(Form["прш,дст"]) ?>
-<?cs /if ?><?cs /if ?>
+ </tbody>
+</table><?cs
+/if ?>
