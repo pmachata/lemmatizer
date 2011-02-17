@@ -16,7 +16,7 @@
 # <http://www.gnu.org/licenses/>. ?><html>
 <head>
     <title>Лемматизатор: <?cs var:page.word ?></title>
-    <link rel="stylesheet" type="text/css" href="/lemmatizer/style.css" />
+    <link rel="stylesheet" type="text/css" href="<?cs var:lemmatizer.htmlpath ?>style.css" />
 </head>
 <body>
 <?cs var:page.contents ?>
