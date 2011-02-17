@@ -23,13 +23,19 @@ def:pos_russian(val) ?><?cs
 
   if val == "noun" ?>Существительное<?cs else ?><?cs
   if val == "adjective" ?>Прилагательное<?cs else ?><?cs
+  if val == "short_adjective" ?>Прилагательное<?cs else ?><?cs
   if val == "adverb" ?>Наречие<?cs else ?><?cs
   if val == "interjection" ?>Междуметие<?cs else ?><?cs
   if val == "transition_word" ?>Вводное слово<?cs else ?><?cs
   if val == "particle" ?>Частица<?cs else ?><?cs
   if val == "conjunction" ?>Союз<?cs else ?><?cs
   if val == "pronoun" ?>Местоимение<?cs else ?><?cs
+  if val == "number" ?>Числительное<?cs else ?><?cs
+  if val == "ordinal_number" ?>Порядковое числительное<?cs else ?><?cs
   if val == "verb" ?>Глагол<?cs else ?><?cs var:val ?><?cs
+  /if ?><?cs
+  /if ?><?cs
+  /if ?><?cs
   /if ?><?cs
   /if ?><?cs
   /if ?><?cs

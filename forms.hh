@@ -36,6 +36,10 @@ public:
 
   std::string operator[] (size_t idx);
 
+  int homonym_weight () const;
+  int word_weight () const;
+  size_t size () const;
+
   class const_iterator;
   const_iterator begin () const;
   const_iterator end () const;

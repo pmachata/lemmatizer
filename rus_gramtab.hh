@@ -25,13 +25,13 @@ enum pos_code_t
     pos_verb = 2,
     pos_pronoun = 3,
     pos_pronominal_adjective = 4,
-    pos_5 = 5, //"МС-ПРЕДК"
+    pos_negative_pronoun = 5,
     pos_6 = 6, //"ЧИСЛ"
     pos_7 = 7, //"ЧИСЛ-П"
     pos_adverb = 8, //"Н", // 8
-    pos_9 = 9, //"ПРЕДК"
-    pos_10 = 10, //"ПРЕДЛ"
-    pos_11 = 11, //"ПОСЛ"
+    pos_predicative = 9,
+    pos_preposition = 10,
+    pos_11 = 11, //"ПОСЛ" = post-position?
     pos_conjunction = 12,
     pos_interjection = 13,
     pos_transition_word = 14,

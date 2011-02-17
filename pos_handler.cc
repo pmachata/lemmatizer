@@ -14,9 +14,10 @@
 // License along with this program.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pos_handler.hh"
 #include "adjective.hh"
+#include "default.hh"
 #include "noun.hh"
+#include "pos_handler.hh"
 #include "simple.hh"
 #include "verb.hh"
 
@@ -29,6 +30,7 @@ pos_handler::template_name () const
 {
   return _m_name;
 }
+
 
 void
 pos_handler_map::insert (int pos, pos_handler const *handler)
@@ -81,7 +83,12 @@ pos_handler_map::~pos_handler_map ()
 pos_handler const *
 pos_handler_map::get_handler (int pos)
 {
+  static default_handler const def;
   if (pos < 0 || (size_t)pos >= size ())
     return NULL;
-  return operator[] (pos);
+
+  if (pos_handler const *ret = operator[] (pos))
+    return ret;
+  else
+    return &def;
 }

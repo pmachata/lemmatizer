@@ -40,6 +40,8 @@ format_rus (pos_code_t val)
       return "conjunction";
     case pos_pronoun:
       return "pronoun";
+    case pos_negative_pronoun:
+      return "negative_pronoun";
     case pos_short_adjective:
       return "short_adjective";
     case pos_infinitive:
@@ -50,12 +52,15 @@ format_rus (pos_code_t val)
       return "adj_participle";
     case pos_pronominal_adjective:
       return "pronominal_adjective";
+    case pos_number:
+      return "number";
+    case pos_ordinal_number:
+      return "ordinal_number";
+    case pos_preposition:
+      return "preposition";
+    case pos_predicative:
+      return "predicative";
 
-    case pos_5:
-    case pos_6:
-    case pos_7:
-    case pos_9:
-    case pos_10:
     case pos_11:
     case pos_15:
     case pos_short_participle:

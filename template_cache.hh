@@ -41,7 +41,8 @@ class template_cache
   // templates that come from that file.
   int _m_inotify_fd;
 
-  struct wd_to_id_s {
+  struct wd_to_id_s
+  {
     ssize_t id;
     ssize_t next;
 
