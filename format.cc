@@ -142,19 +142,22 @@ format_rus (gram_code_t val)
       return "colloquial";
     case gm_indeclinable:
       return "indeclinable";
+    case gm_first_name:
+      return "first_name";
+    case gm_patronymic:
+      return "patronymic";
+    case gm_surname:
+      return "surname";
 
     case gm_25:
     case gm_26:
     case gm_abbr:
-    case gm_patronymic:
     case gm_32:
     case gm_33:
     case gm_34:
     case gm_35:
     case gm_36:
     case gm_37:
-    case gm_first_name:
-    case gm_surname:
     case gm_impersonal:
     case gm_jargon:
     case gm_42:
