@@ -69,8 +69,46 @@ def:adjective_table (sub) ?><table>
 <tr><td>мр</td><td>жр</td><td>ср</td></tr>
 </thead>
 
-<tbody>
+<tbody><?cs
 
+if:subcount(sub.indeclinable) ?>
+<tr><td>им.</td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td></tr>
+
+<tr><td>р.</td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td></tr>
+
+<tr><td>д.</td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td></tr>
+
+<tr><td>в.</td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td></tr>
+
+<tr><td>тв.</td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td></tr>
+
+<tr><td>пр.</td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td>
+    <td><?cs call:html_variants(sub.indeclinable) ?></td></tr><?cs
+
+else ?>
 <tr><td>им.</td>
     <td><?cs call:html_variants(sub.masculine.nominative) ?></td>
     <td><?cs call:html_variants(sub.feminine.nominative) ?></td>
@@ -129,6 +167,8 @@ if:subcount(sub.short) ?>
     <td><?cs call:html_variants(sub.short.feminine) ?></td>
     <td><?cs call:html_variants(sub.short.neuter) ?></td>
     <td><?cs call:html_variants(sub.short.plural) ?></td></tr><?cs
+/if ?><?cs
+
 /if ?>
 </tbody>
 </table><?cs

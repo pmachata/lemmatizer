@@ -30,6 +30,16 @@ adjective_handler::format_form_key (gram_code_t degree, gram_code_t gcase,
 				    bool animate, bool inanimate,
 				    bool secondary)
 {
+  /*
+  std::cerr << (boost::format ("degree=%s, case=%s, number=%s, gender=%s, "
+			       "animate=%d, inanimate=%d, secondary=%d\n")
+		% (degree != gm__invalid ? format_rus (degree) : "?")
+		% (gcase != gm__invalid ? format_rus (gcase) : "?")
+		% (number != gm__invalid ? format_rus (number) : "?")
+		% (gender != gm__invalid ? format_rus (gender) : "?")
+		% animate % inanimate % secondary);
+  */
+
   if (degree == gm__invalid)
     degree = gm_positive;
   bool is_short = gcase == gm__invalid && degree == gm_positive;
@@ -48,22 +58,34 @@ adjective_handler::format_form_key (gram_code_t degree, gram_code_t gcase,
   if (is_short)
     os << ".short";
 
-  if (number != gm__invalid)
+  if (gcase == gm_vocative)
     {
-      if (gender != gm__invalid)
-	{
-	  assert (number == gm_singular);
-	  os << '.' << format_rus (gender);
-	}
-      else
-	{
-	  assert (number == gm_plural);
-	  os << '.' << format_rus (number);
-	}
+      // Indeclinable adjectives are marked with vocative case.
+      // Pronominal adjectives have neuter gender, adjectives
+      // undefined gender.
+      assert (gender == gm__invalid || gender == gm_neuter);
+      assert (number == gm_singular);
+      os << ".indeclinable";
     }
+  else
+    {
+      if (number != gm__invalid)
+	{
+	  if (gender != gm__invalid)
+	    {
+	      assert (number == gm_singular);
+	      os << '.' << format_rus (gender);
+	    }
+	  else
+	    {
+	      assert (number == gm_plural);
+	      os << '.' << format_rus (number);
+	    }
+	}
 
-  if (gcase != gm__invalid)
-    os << '.' << format_rus (gcase);
+      if (gcase != gm__invalid)
+	os << '.' << format_rus (gcase);
+    }
 
   if ((animate || inanimate) && !(animate && inanimate))
     os << '.' << format_rus (animate ? gm_animate : gm_inanimate);
