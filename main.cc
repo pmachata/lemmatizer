@@ -216,7 +216,8 @@ public:
 	 it != lem.end (); ++it)
       {
 	part_of_speech pos = it.get_part_of_speech ();
-	std::cerr << "Part of speech = " << show (pos.name ()) << std::endl;
+	std::cerr << (boost::format ("%s: %s\n")
+		      % show (line) % show (pos.name ()));
 	lemmatize::forms forms = it.forms ();
 
 	pos_handler const *handler
