@@ -31,6 +31,12 @@ table thead {
     background-color: #FFFBD0;
     font-size: larger;
     font-weight: bold;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+}
+
+table tbody {
+    text-transform: lowercase;
 }
 
 table td {
@@ -40,11 +46,6 @@ table td {
 
 .colloquial {
     color: gray;
-}
-
-table thead {
-    border-top: 2px solid black;
-    border-bottom: 2px solid black;
 }
 
 h1 {
