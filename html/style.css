@@ -35,10 +35,6 @@ table thead {
     border-bottom: 2px solid black;
 }
 
-table tbody {
-    text-transform: lowercase;
-}
-
 table td {
     border: 1px dotted black;
     color: black;

@@ -14,10 +14,10 @@
 // License along with this program.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <algorithm>
 #include <cstring>
 #include <iconv.h>
 #include <iostream>
-#include <stdexcept>
 #include <cerrno>
 
 #include <AgramtabLib/RusGramTab.h>
@@ -78,6 +78,54 @@ convert (std::string const &word, iconv_t ic_d)
   *outbuf_ptr = 0;
 
   return outbuf;
+}
+
+// convert windows1251-encoded character to lowercase
+char
+windows1251_lowercase (char c0)
+{
+  unsigned char c = (unsigned char)c0;
+  if (__builtin_expect ((c >= 0xc0 && c < 0xe0), 1))
+    return c + 0x20;
+
+  switch (c)
+    {
+    case 0xa1: // short u
+    case 0xb2: // pre-reform russian i
+    case 0xbd: // s
+      return c + 1;
+
+    case 0x81: // gje
+      return c + 2;
+
+    case 0x80: // dje
+    case 0x8a: // lje
+    case 0x8c: // nje
+    case 0x8d: // kje
+    case 0x8e: // tshe
+    case 0x8f: // dzhe
+    case 0xa8: // yo
+    case 0xaa: // ye
+    case 0xaf: // yi
+      return c + 0x10;
+
+    case 0xa3: // je
+      return 0xbc;
+
+    case 0xa5: // ge with upturn
+      return 0xb4;
+    }
+
+  return std::tolower (c);
+}
+
+// convert windows1251-encoded string to lowercase
+std::string
+windows1251_lowercase (std::string w)
+{
+  std::transform (w.begin (), w.end (), w.begin (),
+		  (char (&)(char))windows1251_lowercase);
+  return w;
 }
 
 // Use this character as an accent mark.  This must be a wchar_t
@@ -169,8 +217,10 @@ public:
 
   // Convert the string to on-screen representation.  If accent is
   // passed, put accent mark where it should be.
-  std::string show (std::string const &w, int accent = -1)
+  std::string show (std::string const &w1, int accent = -1)
   {
+    std::string w = windows1251_lowercase (w1);
+
     if (accent == -1)
       return convert (w, _m_iconv_from);
 
