@@ -8,9 +8,16 @@ Dependencies:
  seman
 
 Installation:
- lemmatizer -> /var/www/cgi-bin/
- lemmatizer.hdf -> /etc or $HOME of the user under which lemmatizer runs
- *.cs -> the directory that is configured in lemmatizer.hdf
- html/* -> /var/www/html/
+
+ lemmatizer: /var/www/cgi-bin/
+
+ lemmatizer.hdf: /etc or $HOME of the user under which lemmatizer runs
+
+ *.cs: the directory named in hdf.loadpaths as configured in
+   lemmatizer.hdf
+
+ html/*: these files must be found when hyperlinked with the path
+   named in variable lemmatizer.htmlpath as configured in
+   lemmatizer.hdf.
 
  The lemmatizer can be used with FCGI protocol as well as CGI.

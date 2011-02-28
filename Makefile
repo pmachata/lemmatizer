@@ -14,7 +14,7 @@
 # License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-NAME = lemmatizer
+NAME = lemmatizer-web
 VERSION = 0.1
 
 SEMAN_INCLUDE = /usr/include/Seman
