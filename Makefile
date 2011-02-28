@@ -14,6 +14,9 @@
 # License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
+NAME = lemmatizer
+VERSION = 0.1
+
 SEMAN_INCLUDE = /usr/include/Seman
 TARGETS = lemmatizer
 CXXPPFLAGS += $(CXXINCLUDES) -I$(SEMAN_INCLUDE)
@@ -47,6 +50,10 @@ $(TARGETS):
 test-%: %.o %.cc test.o
 	$(CXX) $(CXXFLAGS) -DSELFTEST $(@:test-%=%.cc) $(filter-out $<,$(filter %.o,$^)) -o $@ $(LDFLAGS)
 	./$@ || (rm -f $@; exit 1)
+
+dist:
+	git archive -v --prefix=$(NAME)-$(VERSION)/ HEAD \
+		| bzip2 > $(NAME)-$(VERSION).tar.bz2
 
 clean:
 	rm -f $(foreach dir,$(DIRS),$(dir)/*.o $(dir)/*.*-dep) $(TARGETS)
