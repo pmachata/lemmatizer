@@ -60,10 +60,11 @@ format_rus (pos_code_t val)
       return "preposition";
     case pos_predicative:
       return "predicative";
+    case pos_short_participle:
+      return "short_participle";
 
     case pos_11:
     case pos_15:
-    case pos_short_participle:
     case pos__invalid:
       break;
   };

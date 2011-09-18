@@ -56,6 +56,7 @@ pos_handler_map::pos_handler_map (id_allocator &id_a)
   insert (pos_infinitive, verb);
   insert (pos_adj_participle, verb);
   insert (pos_adv_participle, verb);
+  insert (pos_short_participle, verb);
 
   pos_handler const *adj = new adjective_handler (id_a);
   insert (pos_adjective, adj);

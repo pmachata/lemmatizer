@@ -268,7 +268,6 @@ public:
 	part_of_speech pos = it.get_part_of_speech ();
 	std::cerr << (boost::format ("%s: %s\n")
 		      % show (line) % show (pos.name ()));
-	lemmatize::forms forms = it.forms ();
 
 	pos_handler const *handler
 	  = _m_handlers.get_handler (pos.number ());
