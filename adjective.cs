@@ -39,7 +39,7 @@ if:subcount(Form.comparative) ?>
 
 <table>
 <thead>
-<tr><td>&nbsp;</td><td>срав.</td></tr>
+<tr><td> </td><td>срав.</td></tr>
 </thead>
 <tbody><?cs
 

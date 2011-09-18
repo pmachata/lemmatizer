@@ -17,7 +17,7 @@
 
 def:conj_table (all, sub) ?><table>
 <thead>
-<tr><td>&nbsp;</td><td>ед</td><td>мн</td></tr>
+<tr><td> </td><td>ед</td><td>мн</td></tr>
 </thead>
 
 <tbody><?cs
@@ -45,7 +45,7 @@ if:all || subcount(sub.singular.3rd_person) || subcount(sub.plural.3rd_person) ?
 
 def:conj_table_past (sub) ?><table>
 <thead>
-<tr><td>&nbsp;</td><td>ед</td><td>мн</td></tr>
+<tr><td> </td><td>ед</td><td>мн</td></tr>
 </thead>
 
 <tbody>
@@ -65,7 +65,7 @@ def:conj_table_past (sub) ?><table>
 
 def:adjective_table (sub) ?><table>
 <thead>
-<tr><td rowspan="2">&nbsp;</td><td colspan="3">ед.ч.</td><td rowspan="2">мн.ч.</td></tr>
+<tr><td rowspan="2"> </td><td colspan="3">ед.ч.</td><td rowspan="2">мн.ч.</td></tr>
 <tr><td>мр</td><td>жр</td><td>ср</td></tr>
 </thead>
 

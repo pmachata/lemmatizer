@@ -56,7 +56,7 @@ fcgi_backend::get_word (std::string &word)
 void
 fcgi_backend::before_render ()
 {
-  render ("Content-type: text/html\r\n\r\n");
+  render ("Content-type: text/html; charset=UTF-8\r\n\r\n");
 }
 
 bool

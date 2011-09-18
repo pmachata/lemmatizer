@@ -31,7 +31,7 @@ call:html_properties(Form)
 
 <table>
 <thead>
-<tr><td>&nbsp;</td><td>ед.ч.</td><td>мн.ч.</td></tr>
+<tr><td> </td><td>ед.ч.</td><td>мн.ч.</td></tr>
 </thead>
 
 <tbody>
